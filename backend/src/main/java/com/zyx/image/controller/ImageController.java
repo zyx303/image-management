@@ -2,21 +2,24 @@ package com.zyx.image.controller;
 
 import com.zyx.image.service.ImageService;
 import com.zyx.image.util.JwtUtil;
+import com.zyx.image.util.FileUtil;
 import com.zyx.image.vo.ImageVO;
 import com.zyx.image.vo.PageResult;
 import com.zyx.image.vo.Result;
 import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
 import java.util.Map;
 
@@ -239,6 +242,142 @@ public class ImageController {
             return jwtUtil.getUserIdFromToken(token);
         }
         throw new RuntimeException("未找到Token");
+    }
+}
+
+/**
+ * 文件访问控制器
+ * 专门用于提供图片文件访问服务，仅允许用户访问自己的图片
+ */
+@RestController
+@RequestMapping("/files")
+@RequiredArgsConstructor
+class FileAccessController {
+    
+    private final FileUtil fileUtil;
+    private final ImageService imageService;
+    private final JwtUtil jwtUtil;
+    
+    /**
+     * 获取图片文件
+     * 支持访问原图和缩略图
+     * 路径格式：/files/{relativePath}
+     * 例如：/files/2025/11/17/xxx.png 或 /files/thumbnails/2025/11/17/xxx.png
+     * 需要JWT认证，仅能访问自己的图片
+     */
+    @GetMapping("/**")
+    public ResponseEntity<Resource> getFile(HttpServletRequest request) {
+        try {
+            // 获取并验证用户身份
+            Long userId = getUserIdFromRequest(request);
+            if (userId == null) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+            }
+            
+            // 获取完整的请求路径
+            String requestPath = request.getRequestURI();
+            // 移除 /api/files/ 前缀
+            String contextPath = request.getContextPath();
+            String relativePath = requestPath.substring((contextPath + "/files/").length());
+            
+            // 安全检查：防止路径遍历攻击
+            if (relativePath.contains("..") || relativePath.startsWith("/")) {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+            }
+            
+            // 判断是缩略图还是原图，并获取对应的图片信息
+            com.zyx.image.entity.Image image;
+            boolean isThumbnail = false;
+            
+            if (relativePath.startsWith("thumbnails/")) {
+                isThumbnail = true;
+                String thumbnailRelativePath = relativePath.substring("thumbnails/".length());
+                image = imageService.getImageByThumbnailPath(thumbnailRelativePath);
+            } else {
+                image = imageService.getImageByPath(relativePath);
+            }
+            
+            // 检查图片是否存在
+            if (image == null) {
+                return ResponseEntity.notFound().build();
+            }
+            
+            // 权限检查：验证图片是否属于当前用户
+            if (!image.getUserId().equals(userId)) {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+            }
+            
+            // 获取实际文件路径
+            Path filePath;
+            if (isThumbnail) {
+                filePath = Paths.get(fileUtil.getThumbnailFullPath(image.getThumbnailPath()));
+            } else {
+                filePath = Paths.get(fileUtil.getFullPath(image.getFilePath()));
+            }
+            
+            // 检查文件是否存在
+            if (!Files.exists(filePath) || !Files.isRegularFile(filePath)) {
+                return ResponseEntity.notFound().build();
+            }
+            
+            // 创建资源
+            Resource resource = new FileSystemResource(filePath.toFile());
+            
+            // 确定Content-Type
+            String contentType = Files.probeContentType(filePath);
+            if (contentType == null) {
+                // 如果无法自动检测，根据文件扩展名设置
+                String filename = filePath.getFileName().toString().toLowerCase();
+                if (filename.endsWith(".jpg") || filename.endsWith(".jpeg")) {
+                    contentType = "image/jpeg";
+                } else if (filename.endsWith(".png")) {
+                    contentType = "image/png";
+                } else if (filename.endsWith(".gif")) {
+                    contentType = "image/gif";
+                } else if (filename.endsWith(".webp")) {
+                    contentType = "image/webp";
+                } else {
+                    contentType = MediaType.APPLICATION_OCTET_STREAM_VALUE;
+                }
+            }
+            
+            // 返回图片资源，设置为inline显示
+            return ResponseEntity.ok()
+                    .contentType(MediaType.parseMediaType(contentType))
+                    .header(HttpHeaders.CACHE_CONTROL, "max-age=31536000") // 缓存1年
+                    .body(resource);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+    
+    /**
+     * 从请求中获取用户ID
+     * 支持从Authorization header或查询参数中获取token
+     */
+    private Long getUserIdFromRequest(HttpServletRequest request) {
+        try {
+            String token = null;
+            
+            // 首先尝试从 Authorization header 中获取
+            String bearerToken = request.getHeader("Authorization");
+            if (bearerToken != null && bearerToken.startsWith("Bearer ")) {
+                token = bearerToken.substring(7);
+            }
+            
+            // 如果 header 中没有，尝试从查询参数中获取（用于 img 标签等无法设置 header 的场景）
+            if (token == null) {
+                token = request.getParameter("token");
+            }
+            
+            if (token != null) {
+                return jwtUtil.getUserIdFromToken(token);
+            }
+            
+            return null;
+        } catch (Exception e) {
+            return null;
+        }
     }
 }
 

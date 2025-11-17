@@ -54,14 +54,14 @@
         >
           <div class="image-box">
             <img
-              :src="getImageUrl(image.thumbnailPath)"
+              :src="getThumbnailUrl(image.thumbnailPath)"
               :alt="image.fileName"
               loading="lazy"
             />
             <div class="image-overlay">
               <div class="overlay-content">
                 <h4>{{ image.fileName }}</h4>
-                <p>{{ formatDate(image.createTime) }}</p>
+                <p>{{ formatDateOnly(image.createTime) }}</p>
                 <div class="overlay-actions">
                   <el-button
                     type="primary"
@@ -134,6 +134,7 @@ import {
   Delete
 } from '@element-plus/icons-vue'
 import { useImageStore } from '@/stores/image'
+import { getImageUrl, getThumbnailUrl, formatFileSize, formatDateOnly } from '@/utils/image'
 import ImageSlideshow from '@/components/ImageSlideshow.vue'
 
 const router = useRouter()
@@ -213,25 +214,6 @@ const handleSizeChange = (size) => {
   pageSize.value = size
   currentPage.value = 1
   loadImages()
-}
-
-const getImageUrl = (path) => {
-  if (!path) return ''
-  if (path.startsWith('http')) return path
-  return `${import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080/api'}/files/${path}`
-}
-
-const formatFileSize = (bytes) => {
-  if (!bytes) return '0 B'
-  const k = 1024
-  const sizes = ['B', 'KB', 'MB', 'GB']
-  const i = Math.floor(Math.log(bytes) / Math.log(k))
-  return (bytes / Math.pow(k, i)).toFixed(2) + ' ' + sizes[i]
-}
-
-const formatDate = (date) => {
-  if (!date) return ''
-  return new Date(date).toLocaleDateString('zh-CN')
 }
 </script>
 

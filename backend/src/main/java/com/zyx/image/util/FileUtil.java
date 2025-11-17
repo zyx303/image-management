@@ -6,7 +6,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -83,10 +82,21 @@ public class FileUtil {
     }
     
     /**
-     * 计算文件MD5
+     * 计算文件MD5（从MultipartFile）
      */
     public String calculateMD5(MultipartFile file) throws IOException {
         return DigestUtils.md5Hex(file.getInputStream());
+    }
+    
+    /**
+     * 计算文件MD5（从文件路径）
+     */
+    public String calculateMD5(String filePath) throws IOException {
+        Path path = Paths.get(uploadPath, filePath);
+        if (!Files.exists(path)) {
+            throw new IOException("文件不存在: " + path);
+        }
+        return DigestUtils.md5Hex(Files.newInputStream(path));
     }
     
     /**

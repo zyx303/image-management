@@ -112,7 +112,7 @@
                 class="image-checkbox"
                 @click.stop
               />
-              <img :src="getImageUrl(image.thumbnailPath)" :alt="image.fileName" />
+              <img :src="getThumbnailUrl(image.thumbnailPath)" :alt="image.fileName" />
               <div class="image-info">
                 <div class="image-name">{{ image.fileName }}</div>
                 <div class="image-meta">
@@ -133,7 +133,7 @@
             <el-table-column label="预览" width="80">
               <template #default="{ row }">
                 <img
-                  :src="getImageUrl(row.thumbnailPath)"
+                  :src="getThumbnailUrl(row.thumbnailPath)"
                   class="table-thumbnail"
                   :alt="row.fileName"
                 />
@@ -233,6 +233,7 @@ import {
 } from '@element-plus/icons-vue'
 import { useImageStore } from '@/stores/image'
 import { useTagStore } from '@/stores/tag'
+import { getImageUrl, getThumbnailUrl, formatFileSize, formatDate } from '@/utils/image'
 import ImageSlideshow from '@/components/ImageSlideshow.vue'
 
 const router = useRouter()
@@ -376,25 +377,6 @@ const handleSizeChange = (size) => {
   pageSize.value = size
   currentPage.value = 1
   loadImages()
-}
-
-const getImageUrl = (path) => {
-  if (!path) return ''
-  if (path.startsWith('http')) return path
-  return `${import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080/api'}/files/${path}`
-}
-
-const formatFileSize = (bytes) => {
-  if (!bytes) return '0 B'
-  const k = 1024
-  const sizes = ['B', 'KB', 'MB', 'GB']
-  const i = Math.floor(Math.log(bytes) / Math.log(k))
-  return (bytes / Math.pow(k, i)).toFixed(2) + ' ' + sizes[i]
-}
-
-const formatDate = (date) => {
-  if (!date) return ''
-  return new Date(date).toLocaleString('zh-CN')
 }
 </script>
 

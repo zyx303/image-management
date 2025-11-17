@@ -58,7 +58,7 @@
           @click="goToSlide(index)"
         >
           <img
-            :src="getImageUrl(img.thumbnailPath)"
+            :src="getThumbnailUrl(img.thumbnailPath)"
             :alt="img.fileName"
           />
         </div>
@@ -99,6 +99,7 @@ import {
   VideoPlay,
   VideoPause
 } from '@element-plus/icons-vue'
+import { getImageUrl, getThumbnailUrl } from '@/utils/image'
 
 const props = defineProps({
   images: {
@@ -181,12 +182,6 @@ const handleIntervalChange = () => {
   if (isPlaying.value) {
     startAutoPlay()
   }
-}
-
-const getImageUrl = (path) => {
-  if (!path) return ''
-  if (path.startsWith('http')) return path
-  return `${import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080/api'}/files/${path}`
 }
 </script>
 

@@ -229,6 +229,7 @@ import {
 import { useImageStore } from '@/stores/image'
 import { useTagStore } from '@/stores/tag'
 import { addImageTag, removeImageTag } from '@/api/image'
+import { getImageUrl, formatFileSize, formatDate } from '@/utils/image'
 import Cropper from 'cropperjs'
 import 'cropperjs/dist/cropper.css'
 
@@ -312,25 +313,6 @@ watch(showCropDialog, (val) => {
     }
   }
 })
-
-const getImageUrl = (path) => {
-  if (!path) return ''
-  if (path.startsWith('http')) return path
-  return `${import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080/api'}/files/${path}`
-}
-
-const formatFileSize = (bytes) => {
-  if (!bytes) return '0 B'
-  const k = 1024
-  const sizes = ['B', 'KB', 'MB', 'GB']
-  const i = Math.floor(Math.log(bytes) / Math.log(k))
-  return (bytes / Math.pow(k, i)).toFixed(2) + ' ' + sizes[i]
-}
-
-const formatDate = (date) => {
-  if (!date) return ''
-  return new Date(date).toLocaleString('zh-CN')
-}
 
 const handleUpdateInfo = async () => {
   if (!image.value) return

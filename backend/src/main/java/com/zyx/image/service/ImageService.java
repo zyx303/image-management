@@ -50,23 +50,27 @@ public class ImageService {
         // 生成缩略图
         String thumbnailPath = fileUtil.generateThumbnail(filePath, 300, 300);
         
-        // 计算MD5
-        String md5 = fileUtil.calculateMD5(file);
+        // 计算MD5（从已保存的文件路径计算，避免MultipartFile流被消费的问题）
+        String md5 = null;
+        try {
+            md5 = fileUtil.calculateMD5(filePath);
+        } catch (Exception e) {
+            throw new RuntimeException("计算MD5失败: " + e.getMessage());
+        }
         
         // 提取EXIF信息
         Map<String, Object> exifData = exifUtil.extractExif(file);
         
-        // 获取图片尺寸
+        // 获取图片尺寸（从已保存的文件路径读取，避免MultipartFile流被消费的问题）
         int width = 0;
         int height = 0;
         try {
-            java.io.InputStream inputStream = file.getInputStream();
-            java.awt.image.BufferedImage bufferedImage = javax.imageio.ImageIO.read(inputStream);
+            java.nio.file.Path savedFilePath = java.nio.file.Paths.get(fileUtil.getFullPath(filePath));
+            java.awt.image.BufferedImage bufferedImage = javax.imageio.ImageIO.read(savedFilePath.toFile());
             if (bufferedImage != null) {
                 width = bufferedImage.getWidth();
                 height = bufferedImage.getHeight();
             }
-            inputStream.close();
         } catch (Exception e) {
             // 如果无法读取尺寸，使用默认值0
         }
@@ -160,6 +164,26 @@ public class ImageService {
         imageMapper.updateById(image);
         
         return convertToVO(image);
+    }
+    
+    /**
+     * 根据文件路径获取图片
+     */
+    public Image getImageByPath(String filePath) {
+        LambdaQueryWrapper<Image> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(Image::getFilePath, filePath);
+        wrapper.eq(Image::getStatus, 1);
+        return imageMapper.selectOne(wrapper);
+    }
+    
+    /**
+     * 根据缩略图路径获取图片
+     */
+    public Image getImageByThumbnailPath(String thumbnailPath) {
+        LambdaQueryWrapper<Image> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(Image::getThumbnailPath, thumbnailPath);
+        wrapper.eq(Image::getStatus, 1);
+        return imageMapper.selectOne(wrapper);
     }
     
     /**
@@ -298,14 +322,9 @@ public class ImageService {
     private ImageVO convertToVO(Image image) {
         ImageVO imageVO = new ImageVO();
         BeanUtils.copyProperties(image, imageVO);
-        
-        // 设置完整路径
-        if (image.getFilePath() != null) {
-            imageVO.setFilePath(fileUtil.getFullPath(image.getFilePath()));
-        }
-        if (image.getThumbnailPath() != null) {
-            imageVO.setThumbnailPath(fileUtil.getThumbnailFullPath(image.getThumbnailPath()));
-        }
+
+        // 保持相对路径，前端会通过API访问文件
+        // 不再转换为完整路径
         
         // 加载标签
         LambdaQueryWrapper<ImageTag> wrapper = new LambdaQueryWrapper<>();
