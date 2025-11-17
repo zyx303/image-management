@@ -57,7 +57,7 @@ public class TagController {
     @PostMapping
     public Result<TagVO> createTag(@RequestBody Map<String, String> data) {
         try {
-            String tagName = data.get("tagName");
+            String tagName = data.get("name");
             if (tagName == null || tagName.isEmpty()) {
                 return Result.error("标签名称不能为空");
             }

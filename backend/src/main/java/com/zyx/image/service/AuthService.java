@@ -37,7 +37,7 @@ public class AuthService {
         if (userMapper.selectOne(wrapper) != null) {
             throw new RuntimeException("用户名已存在");
         }
-        
+
         // 检查邮箱是否已存在
         wrapper = new LambdaQueryWrapper<>();
         wrapper.eq(User::getEmail, registerDTO.getEmail());

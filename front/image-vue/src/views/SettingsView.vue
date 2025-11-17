@@ -74,7 +74,7 @@
                 这是一个功能强大的图片管理系统，支持图片上传、编辑、分类和展示。
               </p>
               <el-divider />
-              <p>© 2024 图片管理系统. All rights reserved.</p>
+              <p>© 2025 图片管理系统.</p>
             </div>
           </el-tab-pane>
         </el-tabs>

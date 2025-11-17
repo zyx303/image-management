@@ -1,14 +1,7 @@
 <template>
   <footer class="layout-footer">
     <div class="footer-content">
-      <p>&copy; 2024 图片管理系统. All rights reserved.</p>
-      <div class="footer-links">
-        <a href="#">关于我们</a>
-        <span class="divider">|</span>
-        <a href="#">使用帮助</a>
-        <span class="divider">|</span>
-        <a href="#">隐私政策</a>
-      </div>
+      <p>&copy; 2025 图片管理系统.</p>
     </div>
   </footer>
 </template>
