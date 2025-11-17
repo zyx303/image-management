@@ -43,7 +43,7 @@ public class ImageService {
      * 上传图片
      */
     @Transactional
-    public ImageVO uploadImage(MultipartFile file, Long userId) throws IOException {
+    public ImageVO uploadImage(MultipartFile file, Long userId, List<Long> tagIds) throws IOException {
         // 保存文件
         String filePath = fileUtil.saveFile(file);
         
@@ -109,6 +109,16 @@ public class ImageService {
         }
         
         imageMapper.insert(image);
+
+        // 添加标签关联
+        if (tagIds != null && !tagIds.isEmpty()) {
+            for (Long tagId : tagIds) {
+                ImageTag imageTag = new ImageTag();
+                imageTag.setImageId(image.getId());
+                imageTag.setTagId(tagId);
+                imageTagMapper.insert(imageTag);
+            }
+        }
         
         return convertToVO(image);
     }
@@ -121,7 +131,7 @@ public class ImageService {
         return java.util.Arrays.stream(files)
                 .map(file -> {
                     try {
-                        return uploadImage(file, userId);
+                        return uploadImage(file, userId, null);
                     } catch (IOException e) {
                         throw new RuntimeException("上传失败: " + file.getOriginalFilename(), e);
                     }

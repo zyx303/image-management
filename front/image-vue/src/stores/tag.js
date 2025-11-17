@@ -37,6 +37,7 @@ export const useTagStore = defineStore('tag', () => {
     try {
       const res = await getUserTags()
       userTags.value = res.data || []
+      // console.log('userTags.value', userTags.value[0])
       return res
     } catch (error) {
       console.error('Fetch user tags failed:', error)

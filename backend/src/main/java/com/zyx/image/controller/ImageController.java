@@ -39,10 +39,11 @@ public class ImageController {
      */
     @PostMapping("/upload")
     public Result<ImageVO> uploadImage(@RequestParam("file") MultipartFile file,
+                                       @RequestParam(value = "tagIds", required = false) List<Long> tagIds,
                                        HttpServletRequest request) {
         try {
             Long userId = getUserIdFromRequest(request);
-            ImageVO imageVO = imageService.uploadImage(file, userId);
+            ImageVO imageVO = imageService.uploadImage(file, userId, tagIds);
             return Result.success("上传成功", imageVO);
         } catch (Exception e) {
             return Result.error(e.getMessage());

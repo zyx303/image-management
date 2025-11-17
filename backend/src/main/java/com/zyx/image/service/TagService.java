@@ -2,8 +2,12 @@ package com.zyx.image.service;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.zyx.image.entity.Image;
 import com.zyx.image.entity.ImageTag;
 import com.zyx.image.entity.Tag;
+import com.zyx.image.mapper.ImageMapper;
 import com.zyx.image.mapper.ImageTagMapper;
 import com.zyx.image.mapper.TagMapper;
 import com.zyx.image.vo.ImageVO;
@@ -25,6 +29,7 @@ import java.util.stream.Collectors;
 public class TagService {
     
     private final TagMapper tagMapper;
+    private final ImageMapper imageMapper;
     private final ImageTagMapper imageTagMapper;
     private final ImageService imageService;
     
@@ -135,9 +140,20 @@ public class TagService {
             return PageResult.of(List.of(), 0L, current, size);
         }
         
-        // 这里简化处理，实际应该查询图片列表
-        // 由于需要分页，这里返回空结果，实际应该实现分页查询
-        return PageResult.of(List.of(), (long) imageIds.size(), current, size);
+        // 分页查询图片列表
+        Page<Image> page = new Page<>(current, size);
+        LambdaQueryWrapper<Image> imageWrapper = new LambdaQueryWrapper<>();
+        imageWrapper.in(Image::getId, imageIds)
+                   .eq(Image::getStatus, 1)
+                   .orderByDesc(Image::getUploadTime);
+
+        IPage<Image> imagePage = imageMapper.selectPage(page, imageWrapper);
+
+        List<ImageVO> imageVOs = imagePage.getRecords().stream()
+                .map(this::convertToImageVO)
+                .collect(Collectors.toList());
+
+        return PageResult.of(imageVOs, imagePage.getTotal(), imagePage.getCurrent(), imagePage.getSize());
     }
     
     /**
@@ -157,6 +173,38 @@ public class TagService {
                     return tagVO;
                 })
                 .collect(Collectors.toList());
+    }
+
+    /**
+     * 将Image实体转换为ImageVO
+     */
+    private ImageVO convertToImageVO(Image image) {
+        ImageVO imageVO = new ImageVO();
+        BeanUtils.copyProperties(image, imageVO);
+
+        // 保持相对路径，前端会通过API访问文件
+        // 不再转换为完整路径
+
+        // 加载标签
+        LambdaQueryWrapper<ImageTag> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(ImageTag::getImageId, image.getId());
+        List<ImageTag> imageTags = imageTagMapper.selectList(wrapper);
+
+        List<TagVO> tags = imageTags.stream()
+                .map(it -> {
+                    Tag tag = tagMapper.selectById(it.getTagId());
+                    if (tag != null) {
+                        TagVO tagVO = new TagVO();
+                        BeanUtils.copyProperties(tag, tagVO);
+                        return tagVO;
+                    }
+                    return null;
+                })
+                .filter(java.util.Objects::nonNull)
+                .collect(Collectors.toList());
+
+        imageVO.setTags(tags);
+        return imageVO;
     }
 }
 

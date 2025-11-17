@@ -84,10 +84,10 @@ export const useImageStore = defineStore('image', () => {
   }
 
   // 上传单张图片
-  async function upload(file) {
+  async function upload(file, tagIds = []) {
     uploadProgress.value = 0
     try {
-      const res = await uploadImage(file, (progress) => {
+      const res = await uploadImage(file, tagIds, (progress) => {
         uploadProgress.value = progress
       })
       return res

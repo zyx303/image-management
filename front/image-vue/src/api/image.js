@@ -3,9 +3,16 @@ import request from '@/utils/request'
 /**
  * 上传图片
  */
-export function uploadImage(file, onProgress) {
+export function uploadImage(file, tagIds = [], onProgress) {
   const formData = new FormData()
   formData.append('file', file)
+
+  // 添加标签ID数组
+  if (tagIds && tagIds.length > 0) {
+    tagIds.forEach(tagId => {
+      formData.append('tagIds', tagId)
+    })
+  }
   
   return request({
     url: '/images/upload',
