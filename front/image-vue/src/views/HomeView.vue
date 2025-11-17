@@ -26,7 +26,7 @@
               :type="selectedTag === tag.id ? 'primary' : 'info'"
               @click="handleTagSelect(tag.id)"
             >
-              {{ tag.name }}
+              {{ tag.tagName }}
             </el-tag>
             <el-button
               type="primary"
@@ -108,7 +108,7 @@
             >
               <el-checkbox
                 v-model="selectedImages"
-                :label="image.id"
+                :value="image.id"
                 class="image-checkbox"
                 @click.stop
               />
@@ -233,7 +233,7 @@ import {
 } from '@element-plus/icons-vue'
 import { useImageStore } from '@/stores/image'
 import { useTagStore } from '@/stores/tag'
-import { getImageUrl, getThumbnailUrl, formatFileSize, formatDate } from '@/utils/image'
+import { getThumbnailUrl, formatFileSize, formatDate } from '@/utils/image'
 import ImageSlideshow from '@/components/ImageSlideshow.vue'
 
 const router = useRouter()

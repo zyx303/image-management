@@ -23,13 +23,7 @@
           class="prev-btn"
           @click="prevSlide"
         />
-        <el-button
-          :icon="isPlaying ? VideoPause : VideoPlay"
-          circle
-          size="large"
-          class="play-btn"
-          @click="togglePlay"
-        />
+        
         <el-button
           :icon="ArrowRight"
           circle
@@ -66,24 +60,41 @@
 
       <!-- 设置面板 -->
       <div class="slideshow-settings">
-        <el-form label-width="80px" size="small">
-          <el-form-item label="间隔时间">
-            <el-slider
-              v-model="interval"
-              :min="1"
-              :max="10"
-              :marks="{ 1: '1s', 5: '5s', 10: '10s' }"
-              @change="handleIntervalChange"
-            />
-          </el-form-item>
-          <el-form-item label="过渡效果">
-            <el-select v-model="transition" placeholder="选择过渡效果">
-              <el-option label="淡入淡出" value="fade" />
-              <el-option label="滑动" value="slide" />
-              <el-option label="缩放" value="zoom" />
-            </el-select>
-          </el-form-item>
-        </el-form>
+        <div class="setting-row">
+          <el-form label-width="80px" size="small" class="setting-form">
+            <el-form-item label="间隔时间" class="setting-item">
+              <el-slider
+                v-model="interval"
+                :min="1"
+                :max="10"
+                :marks="{ 1: '1s', 5: '5s', 10: '10s' }"
+                @change="handleIntervalChange"
+              />
+            </el-form-item>
+          </el-form>
+        </div>
+
+        <div class="setting-row">
+          <el-form label-width="80px" size="small" class="setting-form">
+            <el-form-item label="过渡效果" class="setting-item">
+              <el-select v-model="transition" placeholder="选择过渡效果" style="width: 100%">
+                <el-option label="淡入淡出" value="fade" />
+                <el-option label="滑动" value="slide" />
+                <el-option label="缩放" value="zoom" />
+              </el-select>
+            </el-form-item>
+          </el-form>
+        </div>
+
+        <div class="setting-row setting-row-center">
+          <el-button
+            :icon="isPlaying ? VideoPause : VideoPlay"
+            circle
+            size="large"
+            class="play-btn"
+            @click="togglePlay"
+          />
+        </div>
       </div>
     </div>
 
@@ -267,9 +278,16 @@ const handleIntervalChange = () => {
 }
 
 .play-btn {
-  position: absolute;
-  left: 50%;
-  transform: translateX(-50%);
+  background: rgba(64, 158, 255, 0.1);
+  border: 1px solid rgba(64, 158, 255, 0.3);
+  color: #409eff;
+  transition: all 0.3s;
+}
+
+.play-btn:hover {
+  background: rgba(64, 158, 255, 0.2);
+  border-color: #409eff;
+  transform: scale(1.05);
 }
 
 .slide-indicators {
@@ -335,8 +353,35 @@ const handleIntervalChange = () => {
 
 .slideshow-settings {
   background: white;
-  padding: 20px;
+  padding: 24px 20px;
   border-radius: 0 0 12px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.setting-row {
+  display: flex;
+  align-items: center;
+  min-height: 40px;
+}
+
+.setting-row-center {
+  justify-content: center;
+}
+
+.setting-form {
+  width: 100%;
+  margin: 0;
+}
+
+.setting-item {
+  margin-bottom: 0 !important;
+}
+
+.setting-item :deep(.el-form-item__content) {
+  flex: 1;
+  margin-left: 0 !important;
 }
 
 /* 移动端适配 */
@@ -369,7 +414,12 @@ const handleIntervalChange = () => {
   }
 
   .slideshow-settings {
-    padding: 15px;
+    padding: 16px 12px;
+    gap: 16px;
+  }
+
+  .setting-row {
+    min-height: 36px;
   }
 }
 </style>

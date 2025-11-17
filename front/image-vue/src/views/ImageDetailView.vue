@@ -69,7 +69,7 @@
                   closable
                   @close="handleRemoveTag(tag.id)"
                 >
-                  {{ tag.name }}
+                  {{ tag.tagName }}
                 </el-tag>
                 <el-button
                   type="primary"
@@ -202,7 +202,7 @@
         <el-option
           v-for="tag in availableTags"
           :key="tag.id"
-          :label="tag.name"
+          :label="tag.tagName"
           :value="tag.id"
         />
       </el-select>

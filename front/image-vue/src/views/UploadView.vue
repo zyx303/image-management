@@ -75,7 +75,7 @@
               class="tag-item"
               @click="toggleTag(tag.id)"
             >
-              {{ tag.name }}
+              {{ tag.tagName }}
             </el-tag>
             <el-button
               type="primary"
@@ -247,6 +247,7 @@ const toggleTag = (tagId) => {
   } else {
     selectedTags.value.push(tagId)
   }
+  // console.log('selectedTags.value', selectedTags.value)
 }
 
 // 添加标签
@@ -285,14 +286,9 @@ const handleUpload = async () => {
       const item = previewList.value[i]
       
       try {
-        // 上传单张图片
-        const res = await imageStore.upload(item.file)
+        // 上传单张图片，传递选中的标签
+        await imageStore.upload(item.file, selectedTags.value)
         
-        // 如果有选中的标签，添加到图片
-        if (selectedTags.value.length > 0 && res.data?.id) {
-          // 这里可以调用添加标签的 API
-          // await addImageTags(res.data.id, selectedTags.value)
-        }
 
         uploadedCount.value++
         uploadProgress.value = Math.round((uploadedCount.value / total) * 100)
