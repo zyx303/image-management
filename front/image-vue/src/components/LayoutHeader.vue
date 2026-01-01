@@ -24,10 +24,6 @@
             <el-icon><Upload /></el-icon>
             <span>上传</span>
           </el-menu-item>
-          <el-menu-item index="/gallery">
-            <el-icon><Picture /></el-icon>
-            <span>图库</span>
-          </el-menu-item>
         </el-menu>
       </nav>
 
@@ -90,10 +86,6 @@
           <el-icon><Upload /></el-icon>
           <span>上传</span>
         </el-menu-item>
-        <el-menu-item index="/gallery">
-          <el-icon><Picture /></el-icon>
-          <span>图库</span>
-        </el-menu-item>
       </el-menu>
     </el-drawer>
   </header>
@@ -107,7 +99,6 @@ import {
   PictureFilled,
   HomeFilled,
   Upload,
-  Picture,
   UserFilled,
   ArrowDown,
   User,

@@ -28,12 +28,6 @@ const router = createRouter({
           meta: { requiresAuth: true, title: '上传图片' }
         },
         {
-          path: 'gallery',
-          name: 'gallery',
-          component: () => import('@/views/GalleryView.vue'),
-          meta: { requiresAuth: true, title: '图片画廊' }
-        },
-        {
           path: 'image/:id',
           name: 'image-detail',
           component: () => import('@/views/ImageDetailView.vue'),

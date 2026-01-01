@@ -4,18 +4,6 @@
       <!-- 侧边栏 -->
       <el-aside v-if="!isMobile" width="250px" class="sidebar">
         <div class="sidebar-content">
-          <h3>分类筛选</h3>
-          
-          <el-menu :default-active="activeCategory" @select="handleCategorySelect">
-            <el-menu-item index="all">
-              <el-icon><PictureFilled /></el-icon>
-              <span>全部图片</span>
-            </el-menu-item>
-            <el-menu-item index="recent">
-              <el-icon><Clock /></el-icon>
-              <span>最近上传</span>
-            </el-menu-item>
-          </el-menu>
 
           <h3 class="section-title">我的标签</h3>
           <div class="tags-list">
@@ -78,7 +66,7 @@
           </div>
         </div>
 
-        <!-- 视图切换 -->
+        <!-- 视图切换和排序 -->
         <div class="view-options">
           <el-radio-group v-model="viewMode" size="small">
             <el-radio-button label="grid">
@@ -94,6 +82,20 @@
               轮播
             </el-radio-button>
           </el-radio-group>
+
+          <el-select
+            v-model="sortBy"
+            placeholder="排序方式"
+            class="sort-select"
+            @change="handleSort"
+          >
+            <el-option label="最新上传" value="createTime_desc" />
+            <el-option label="最早上传" value="createTime_asc" />
+            <el-option label="文件名 A-Z" value="fileName_asc" />
+            <el-option label="文件名 Z-A" value="fileName_desc" />
+            <el-option label="文件大小从大到小" value="fileSize_desc" />
+            <el-option label="文件大小从小到大" value="fileSize_asc" />
+          </el-select>
         </div>
 
         <!-- 图片展示区 -->
@@ -249,6 +251,7 @@ const currentPage = ref(1)
 const pageSize = ref(24)
 const showAddTagDialog = ref(false)
 const isMobile = ref(window.innerWidth < 768)
+const sortBy = ref('createTime_desc')
 
 const tagForm = reactive({
   name: '',
@@ -267,13 +270,21 @@ onMounted(() => {
 
 const loadImages = async () => {
   try {
+    const [sortField, sortOrder] = sortBy.value.split('_')
     await imageStore.fetchUserImages({
       page: currentPage.value,
-      pageSize: pageSize.value
+      pageSize: pageSize.value,
+      sortField,
+      sortOrder
     })
   } catch (error) {
     ElMessage.error('加载图片失败')
   }
+}
+
+const handleSort = () => {
+  currentPage.value = 1
+  loadImages()
 }
 
 const handleSearch = async () => {
@@ -445,6 +456,15 @@ const handleSizeChange = (size) => {
 
 .view-options {
   margin-bottom: 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.sort-select {
+  width: 180px;
 }
 
 .images-container {
