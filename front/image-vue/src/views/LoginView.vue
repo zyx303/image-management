@@ -11,7 +11,6 @@
         :model="form"
         :rules="rules"
         class="login-form"
-        @submit.prevent="handleSubmit"
       >
         <el-form-item prop="username">
           <el-input
@@ -63,7 +62,6 @@
             size="large"
             :loading="loading"
             class="submit-btn"
-            native-type="submit"
             @click="handleSubmit"
           >
             {{ isLogin ? '登录' : '注册' }}
@@ -198,10 +196,7 @@ const handleSubmit = async () => {
     }
   } catch (error) {
     console.error('Submit failed:', error)
-    if (error !== false) {
-      // false 表示表单验证失败
-      ElMessage.error(error.message || (isLogin.value ? '登录失败' : '注册失败'))
-    }
+    // 错误已在 request 拦截器中统一处理，这里不再重复显示
   } finally {
     loading.value = false
   }
