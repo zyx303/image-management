@@ -327,6 +327,85 @@ public class ImageService {
     }
     
     /**
+     * 编辑图片（裁剪/调整后保存）
+     */
+    @Transactional
+    public ImageVO editImage(Long id, Long userId, String imageData) throws IOException {
+        Image image = imageMapper.selectById(id);
+        if (image == null || image.getStatus() == 0) {
+            throw new RuntimeException("图片不存在");
+        }
+        
+        if (!image.getUserId().equals(userId)) {
+            throw new RuntimeException("无权修改此图片");
+        }
+        
+        // 保存旧文件路径用于删除
+        String oldFilePath = image.getFilePath();
+        String oldThumbnailPath = image.getThumbnailPath();
+        
+        // 保存编辑后的图片
+        String newFilePath = fileUtil.saveEditedImage(imageData, oldFilePath);
+        
+        // 生成新的缩略图
+        String newThumbnailPath = fileUtil.generateThumbnail(newFilePath, 300, 300);
+        
+        // 获取新图片尺寸
+        int width = 0;
+        int height = 0;
+        try {
+            java.nio.file.Path savedFilePath = java.nio.file.Paths.get(fileUtil.getFullPath(newFilePath));
+            java.awt.image.BufferedImage bufferedImage = javax.imageio.ImageIO.read(savedFilePath.toFile());
+            if (bufferedImage != null) {
+                width = bufferedImage.getWidth();
+                height = bufferedImage.getHeight();
+            }
+        } catch (Exception e) {
+            // 如果无法读取尺寸，使用默认值0
+        }
+        
+        // 计算新文件大小
+        long fileSize = 0;
+        try {
+            java.nio.file.Path savedFilePath = java.nio.file.Paths.get(fileUtil.getFullPath(newFilePath));
+            fileSize = java.nio.file.Files.size(savedFilePath);
+        } catch (Exception e) {
+            // 忽略
+        }
+        
+        // 计算新MD5
+        String md5 = null;
+        try {
+            md5 = fileUtil.calculateMD5(newFilePath);
+        } catch (Exception e) {
+            // 忽略
+        }
+        
+        // 更新图片记录
+        image.setFilePath(newFilePath);
+        image.setThumbnailPath(newThumbnailPath);
+        image.setWidth(width);
+        image.setHeight(height);
+        image.setFileSize(fileSize);
+        if (md5 != null) {
+            image.setMd5(md5);
+        }
+        imageMapper.updateById(image);
+        
+        // 删除旧文件
+        try {
+            fileUtil.deleteFile(oldFilePath);
+            if (oldThumbnailPath != null) {
+                fileUtil.deleteThumbnail(oldThumbnailPath);
+            }
+        } catch (Exception e) {
+            // 忽略删除失败
+        }
+        
+        return convertToVO(image);
+    }
+    
+    /**
      * 转换为VO
      */
     private ImageVO convertToVO(Image image) {

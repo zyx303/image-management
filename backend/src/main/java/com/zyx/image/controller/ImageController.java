@@ -211,6 +211,26 @@ public class ImageController {
     }
     
     /**
+     * 编辑图片（裁剪/调整后保存）
+     */
+    @PostMapping("/{id}/edit")
+    public Result<ImageVO> editImage(@PathVariable Long id,
+                                     @RequestBody Map<String, String> data,
+                                     HttpServletRequest request) {
+        try {
+            Long userId = getUserIdFromRequest(request);
+            String imageData = data.get("imageData");
+            if (imageData == null || imageData.isEmpty()) {
+                return Result.error("图片数据不能为空");
+            }
+            ImageVO imageVO = imageService.editImage(id, userId, imageData);
+            return Result.success("编辑成功", imageVO);
+        } catch (Exception e) {
+            return Result.error(e.getMessage());
+        }
+    }
+    
+    /**
      * 下载图片
      */
     @GetMapping("/{id}/download")

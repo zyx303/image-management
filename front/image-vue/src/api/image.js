@@ -162,3 +162,14 @@ export function downloadImage(id) {
   })
 }
 
+/**
+ * 编辑图片（裁剪/调整后保存）
+ */
+export function editImage(id, imageData) {
+  return request({
+    url: `/images/${id}/edit`,
+    method: 'post',
+    data: { imageData }
+  })
+}
+

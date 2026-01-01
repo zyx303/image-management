@@ -228,7 +228,7 @@ import {
 } from '@element-plus/icons-vue'
 import { useImageStore } from '@/stores/image'
 import { useTagStore } from '@/stores/tag'
-import { addImageTag, removeImageTag } from '@/api/image'
+import { addImageTag, removeImageTag, editImage } from '@/api/image'
 import { getImageUrl, formatFileSize, formatDate } from '@/utils/image'
 import Cropper from 'cropperjs'
 import 'cropperjs/dist/cropper.css'
@@ -360,20 +360,25 @@ const handleRemoveTag = async (tagId) => {
   }
 }
 
-const handleCrop = () => {
+const handleCrop = async () => {
   if (!cropper) return
 
   const canvas = cropper.getCroppedCanvas()
-  canvas.toBlob(async (blob) => {
-    try {
-      // 这里应该将裁剪后的图片上传到服务器
-      // 为了演示，我们只是显示成功消息
+  const imageData = canvas.toDataURL('image/jpeg', 0.9)
+  
+  try {
+    const res = await editImage(image.value.id, imageData)
+    if (res.code === 200) {
       ElMessage.success('裁剪成功')
       showCropDialog.value = false
-    } catch (error) {
-      ElMessage.error('裁剪失败')
+      // 刷新图片详情
+      await imageStore.fetchImageDetail(image.value.id)
+    } else {
+      ElMessage.error(res.message || '裁剪失败')
     }
-  })
+  } catch (error) {
+    ElMessage.error('裁剪失败')
+  }
 }
 
 const getAdjustStyle = () => {
@@ -394,11 +399,51 @@ const resetAdjustments = () => {
   adjustments.hue = 0
 }
 
-const handleApplyAdjustments = () => {
-  // 这里应该将调整应用到图片并保存
-  // 为了演示，我们只是显示成功消息
-  ElMessage.success('应用成功')
-  showAdjustDialog.value = false
+const handleApplyAdjustments = async () => {
+  if (!adjustImageRef.value || !image.value) return
+  
+  try {
+    // 创建canvas应用滤镜
+    const img = new Image()
+    img.crossOrigin = 'anonymous'
+    
+    await new Promise((resolve, reject) => {
+      img.onload = resolve
+      img.onerror = reject
+      img.src = getImageUrl(image.value.filePath)
+    })
+    
+    const canvas = document.createElement('canvas')
+    canvas.width = img.width
+    canvas.height = img.height
+    const ctx = canvas.getContext('2d')
+    
+    // 应用滤镜
+    ctx.filter = `
+      brightness(${100 + adjustments.brightness}%)
+      contrast(${100 + adjustments.contrast}%)
+      saturate(${100 + adjustments.saturation}%)
+      hue-rotate(${adjustments.hue}deg)
+    `
+    ctx.drawImage(img, 0, 0)
+    
+    // 获取图片数据
+    const imageData = canvas.toDataURL('image/jpeg', 0.9)
+    
+    const res = await editImage(image.value.id, imageData)
+    if (res.code === 200) {
+      ElMessage.success('应用成功')
+      showAdjustDialog.value = false
+      resetAdjustments()
+      // 刷新图片详情
+      await imageStore.fetchImageDetail(image.value.id)
+    } else {
+      ElMessage.error(res.message || '应用失败')
+    }
+  } catch (error) {
+    console.error('应用调整失败:', error)
+    ElMessage.error('应用失败')
+  }
 }
 
 const handleDownload = () => {

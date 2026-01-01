@@ -132,5 +132,41 @@ public class FileUtil {
     public String getThumbnailFullPath(String relativePath) {
         return Paths.get(thumbnailPath, relativePath).toString();
     }
+    
+    /**
+     * 保存编辑后的图片（从Base64）
+     */
+    public String saveEditedImage(String base64Data, String originalFilePath) throws IOException {
+        // 解析Base64数据
+        String[] parts = base64Data.split(",");
+        String imageData = parts.length > 1 ? parts[1] : parts[0];
+        byte[] imageBytes = java.util.Base64.getDecoder().decode(imageData);
+        
+        // 创建目录
+        String dateDir = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy/MM/dd"));
+        Path dir = Paths.get(uploadPath, dateDir);
+        Files.createDirectories(dir);
+        
+        // 从原始文件路径获取扩展名
+        String extension = ".jpg";
+        if (originalFilePath != null && originalFilePath.contains(".")) {
+            extension = originalFilePath.substring(originalFilePath.lastIndexOf("."));
+        }
+        String filename = UUID.randomUUID().toString() + extension;
+        
+        // 保存文件
+        Path filePath = dir.resolve(filename);
+        Files.write(filePath, imageBytes);
+        
+        // 返回相对路径
+        return Paths.get(dateDir, filename).toString().replace("\\", "/");
+    }
+    
+    /**
+     * 获取上传路径
+     */
+    public String getUploadPath() {
+        return uploadPath;
+    }
 }
 

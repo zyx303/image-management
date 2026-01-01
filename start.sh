@@ -53,8 +53,8 @@ echo "后端服务已启动 (PID: $BACKEND_PID)"
 cd ..
 
 # 等待后端启动
-echo "等待后端服务启动（约10秒）..."
-sleep 10
+echo "等待后端服务启动（5s）..."
+sleep 5
 
 # 启动前端
 echo "启动前端服务..."
