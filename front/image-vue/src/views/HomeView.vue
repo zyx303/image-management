@@ -24,7 +24,9 @@
               class="tag-item"
               :type="selectedTags.includes(tag.id) ? 'primary' : 'info'"
               :effect="selectedTags.includes(tag.id) ? 'dark' : 'light'"
+              closable
               @click="handleTagSelect(tag.id)"
+              @close="handleDeleteTag(tag)"
             >
               {{ tag.tagName }}
             </el-tag>
@@ -412,6 +414,30 @@ const handleAddTag = async () => {
     tagForm.color = '#409eff'
   } catch (error) {
     ElMessage.error('创建标签失败')
+  }
+}
+
+const handleDeleteTag = async (tag) => {
+  try {
+    await ElMessageBox.confirm(`确定要删除标签「${tag.tagName}」吗？`, '提示', {
+      type: 'warning'
+    })
+    await tagStore.remove(tag.id)
+    // 如果删除的标签在选中列表中，移除它
+    const index = selectedTags.value.indexOf(tag.id)
+    if (index > -1) {
+      selectedTags.value.splice(index, 1)
+      if (selectedTags.value.length === 0) {
+        loadImages()
+      } else {
+        loadImagesByTags(true)
+      }
+    }
+    ElMessage.success('标签删除成功')
+  } catch (error) {
+    if (error !== 'cancel') {
+      ElMessage.error('删除标签失败')
+    }
   }
 }
 
