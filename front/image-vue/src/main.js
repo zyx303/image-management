@@ -9,7 +9,12 @@ import zhCn from 'element-plus/dist/locale/zh-cn.mjs'
 
 import App from './App.vue'
 import router from './router'
+import VConsole from 'vconsole';
 
+// 只有在开发环境下才开启
+if (import.meta.env.DEV) {
+  new VConsole();
+}
 const app = createApp(App)
 
 // Pinia
