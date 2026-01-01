@@ -20,10 +20,10 @@ import java.util.UUID;
 @Component
 public class FileUtil {
     
-    @Value("${file.upload.path:/home/zyx/bs/uploads}")
+    @Value("${file.upload.path:/home/zyx/work/bs/uploads}")
     private String uploadPath;
     
-    @Value("${file.upload.thumbnail-path:/home/zyx/bs/uploads/thumbnails}")
+    @Value("${file.upload.thumbnail-path:/home/zyx/work/bs/uploads/thumbnails}")
     private String thumbnailPath;
     
     /**
