@@ -36,10 +36,13 @@ request.interceptors.response.use(
     if (res.code && res.code !== 200) {
       ElMessage.error(res.message || 'Error occurred')
       
+      console.error('Response error:', res)
+      console.error('Full response:', response)
       // 401: 未授权，token 过期
-      if (res.code === 401) {
+      if (res.code === 401 || (res.code === 500 && res.message && res.message.toLowerCase().includes('expired'))) {
+        console.warn('Token expired or unauthorized, logging out...')
         const userStore = useUserStore()
-        userStore.logout()
+        userStore.userLogout()
         router.push('/login')
       }
       
@@ -57,7 +60,7 @@ request.interceptors.response.use(
           ElMessage.error('未授权，请重新登录')
           {
           const userStore = useUserStore()
-          userStore.logout()
+          userStore.userLogout()
           router.push('/login')
           }
           break

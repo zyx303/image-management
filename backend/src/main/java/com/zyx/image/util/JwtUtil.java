@@ -103,24 +103,16 @@ public class JwtUtil {
      * 验证Token是否过期
      */
     public Boolean isTokenExpired(String token) {
-        try {
-            Claims claims = getClaimsFromToken(token);
-            Date expiration = claims.getExpiration();
-            return expiration.before(new Date());
-        } catch (Exception e) {
-            return true;
-        }
+        Claims claims = getClaimsFromToken(token);
+        Date expiration = claims.getExpiration();
+        return expiration.before(new Date());
     }
     
     /**
-     * 验证Token
+     * 验证Token（会抛出异常，如 ExpiredJwtException）
      */
     public Boolean validateToken(String token) {
-        try {
-            return !isTokenExpired(token);
-        } catch (Exception e) {
-            return false;
-        }
+        return !isTokenExpired(token);
     }
 }
 

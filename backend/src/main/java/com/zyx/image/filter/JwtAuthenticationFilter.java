@@ -1,11 +1,15 @@
 package com.zyx.image.filter;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.zyx.image.util.JwtUtil;
+import com.zyx.image.vo.Result;
+import io.jsonwebtoken.ExpiredJwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.MediaType;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -55,8 +59,22 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                     authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                     SecurityContextHolder.getContext().setAuthentication(authentication);
                 }
+            } catch (ExpiredJwtException e) {
+                // Token 过期，返回 401
+                response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                response.setContentType(MediaType.APPLICATION_JSON_VALUE);
+                response.setCharacterEncoding("UTF-8");
+                Result<?> result = Result.error(401, "Token已过期，请重新登录");
+                new ObjectMapper().writeValue(response.getWriter(), result);
+                return;
             } catch (Exception e) {
-                // Token无效，继续执行，让Security处理
+                // Token无效，返回 401
+                response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                response.setContentType(MediaType.APPLICATION_JSON_VALUE);
+                response.setCharacterEncoding("UTF-8");
+                Result<?> result = Result.error(401, "Token无效，请重新登录");
+                new ObjectMapper().writeValue(response.getWriter(), result);
+                return;
             }
         }
         
