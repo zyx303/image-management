@@ -5,13 +5,25 @@
       <el-aside v-if="!isMobile" width="250px" class="sidebar">
         <div class="sidebar-content">
 
-          <h3 class="section-title">我的标签</h3>
+          <div class="section-header">
+            <h3 class="section-title">我的标签</h3>
+            <el-button
+              v-if="selectedTags.length > 0"
+              type="primary"
+              link
+              size="small"
+              @click="clearTagSelection"
+            >
+              清除选择
+            </el-button>
+          </div>
           <div class="tags-list">
             <el-tag
               v-for="tag in tagStore.userTags"
               :key="tag.id"
               class="tag-item"
-              :type="selectedTag === tag.id ? 'primary' : 'info'"
+              :type="selectedTags.includes(tag.id) ? 'primary' : 'info'"
+              :effect="selectedTags.includes(tag.id) ? 'dark' : 'light'"
               @click="handleTagSelect(tag.id)"
             >
               {{ tag.tagName }}
@@ -186,15 +198,15 @@
         </div>
 
         <!-- 分页 -->
-        <div v-if="imageStore.total > pageSize" class="pagination">
+        <div v-if="imageStore.images.length > 0" class="pagination">
           <el-pagination
-            v-model:current-page="currentPage"
-            v-model:page-size="pageSize"
+            :current-page="currentPage"
+            :page-size="pageSize"
             :total="imageStore.total"
-            :page-sizes="[12, 24, 48, 96]"
+            :page-sizes="[10, 15, 20, 40]"
             layout="total, sizes, prev, pager, next, jumper"
-            @current-change="handlePageChange"
-            @size-change="handleSizeChange"
+            @update:current-page="handlePageChange"
+            @update:page-size="handleSizeChange"
           />
         </div>
       </el-main>
@@ -245,10 +257,11 @@ const tagStore = useTagStore()
 const searchKeyword = ref('')
 const viewMode = ref('grid')
 const activeCategory = ref('all')
-const selectedTag = ref(null)
+const selectedTags = ref([])
 const selectedImages = ref([])
 const currentPage = ref(1)
-const pageSize = ref(24)
+const pageSize = ref(10)
+const filteredImagesByTags = ref([]) // 缓存多标签筛选结果
 const showAddTagDialog = ref(false)
 const isMobile = ref(window.innerWidth < 768)
 const sortBy = ref('createTime_desc')
@@ -272,8 +285,8 @@ const loadImages = async () => {
   try {
     const [sortField, sortOrder] = sortBy.value.split('_')
     await imageStore.fetchUserImages({
-      page: currentPage.value,
-      pageSize: pageSize.value,
+      current: currentPage.value,
+      size: pageSize.value,
       sortField,
       sortOrder
     })
@@ -296,8 +309,8 @@ const handleSearch = async () => {
   try {
     await imageStore.search({
       keyword: searchKeyword.value,
-      page: currentPage.value,
-      pageSize: pageSize.value
+      current: currentPage.value,
+      size: pageSize.value
     })
   } catch (error) {
     ElMessage.error('搜索失败')
@@ -306,26 +319,82 @@ const handleSearch = async () => {
 
 const handleCategorySelect = (index) => {
   activeCategory.value = index
-  selectedTag.value = null
+  selectedTags.value = []
   loadImages()
 }
 
 const handleTagSelect = async (tagId) => {
-  if (selectedTag.value === tagId) {
-    selectedTag.value = null
-    loadImages()
+  const index = selectedTags.value.indexOf(tagId)
+  if (index > -1) {
+    // 取消选择
+    selectedTags.value.splice(index, 1)
   } else {
-    selectedTag.value = tagId
-    try {
-      const res = await tagStore.fetchImagesByTag(tagId, {
-        page: currentPage.value,
-        pageSize: pageSize.value
+    // 添加选择
+    selectedTags.value.push(tagId)
+  }
+  
+  currentPage.value = 1
+  await loadImagesByTags(true) // 强制刷新
+}
+
+const clearTagSelection = () => {
+  selectedTags.value = []
+  filteredImagesByTags.value = []
+  tagFilterLoaded.value = false
+  currentPage.value = 1
+  loadImages()
+}
+
+// 标记是否已加载过标签筛选数据
+const tagFilterLoaded = ref(false)
+
+const loadImagesByTags = async (forceRefresh = false) => {
+  if (selectedTags.value.length === 0) {
+    filteredImagesByTags.value = []
+    tagFilterLoaded.value = false
+    loadImages()
+    return
+  }
+  
+  try {
+    // 如果需要刷新或未加载过数据，重新获取
+    if (forceRefresh || !tagFilterLoaded.value) {
+      // 获取所有选中标签的图片，然后取交集
+      const promises = selectedTags.value.map(tagId => 
+        tagStore.fetchImagesByTag(tagId, {
+          page: 1,
+          pageSize: 1000 // 获取足够多的数据用于交集计算
+        })
+      )
+      
+      const results = await Promise.all(promises)
+      
+      // 提取每个标签对应的图片ID集合
+      const imageSets = results.map(res => {
+        const images = res.data.records || res.data.list || res.data || []
+        return new Set(images.map(img => img.id))
       })
-      imageStore.images = res.data.records || res.data.list || res.data
-      imageStore.total = res.data.total || imageStore.images.length
-    } catch (error) {
-      ElMessage.error('加载标签图片失败')
+      
+      // 计算交集
+      let intersectionIds = imageSets[0]
+      for (let i = 1; i < imageSets.length; i++) {
+        intersectionIds = new Set([...intersectionIds].filter(id => imageSets[i].has(id)))
+      }
+      
+      // 获取第一个结果中符合交集的图片
+      const firstImages = results[0].data.records || results[0].data.list || results[0].data || []
+      filteredImagesByTags.value = firstImages.filter(img => intersectionIds.has(img.id))
+      tagFilterLoaded.value = true
     }
+    
+    // 分页处理
+    const start = (currentPage.value - 1) * pageSize.value
+    const end = start + pageSize.value
+    
+    imageStore.images = filteredImagesByTags.value.slice(start, end)
+    imageStore.total = filteredImagesByTags.value.length
+  } catch (error) {
+    ElMessage.error('加载标签图片失败')
   }
 }
 
@@ -381,13 +450,27 @@ const handleBatchDelete = async () => {
 
 const handlePageChange = (page) => {
   currentPage.value = page
-  loadImages()
+  if (selectedTags.value.length > 0) {
+    // 分页切换时不需要重新获取数据，只需要重新切片
+    const start = (currentPage.value - 1) * pageSize.value
+    const end = start + pageSize.value
+    imageStore.images = filteredImagesByTags.value.slice(start, end)
+  } else {
+    loadImages()
+  }
 }
 
 const handleSizeChange = (size) => {
   pageSize.value = size
   currentPage.value = 1
-  loadImages()
+  if (selectedTags.value.length > 0) {
+    // 每页数量变化时重新切片
+    const start = 0
+    const end = pageSize.value
+    imageStore.images = filteredImagesByTags.value.slice(start, end)
+  } else {
+    loadImages()
+  }
 }
 </script>
 
@@ -411,6 +494,17 @@ const handleSizeChange = (size) => {
   margin: 0 0 15px 0;
 }
 
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.section-header .section-title {
+  margin: 0;
+}
+
 .section-title {
   margin-top: 30px;
 }
@@ -419,6 +513,10 @@ const handleSizeChange = (size) => {
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
+}
+
+.tag-item.el-tag--dark {
+  box-shadow: 0 2px 6px rgba(64, 158, 255, 0.4);
 }
 
 .tag-item {
