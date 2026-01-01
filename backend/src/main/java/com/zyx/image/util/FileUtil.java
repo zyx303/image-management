@@ -102,20 +102,50 @@ public class FileUtil {
     /**
      * 删除文件
      */
-    public void deleteFile(String filePath) throws IOException {
+    public void deleteFile(String filePath) {
+        if (filePath == null || filePath.isEmpty()) {
+            System.out.println("警告: 文件路径为空，跳过删除");
+            return;
+        }
+        
         Path path = Paths.get(uploadPath, filePath);
+        System.out.println("尝试删除文件: " + path.toAbsolutePath());
+        
         if (Files.exists(path)) {
-            Files.delete(path);
+            try {
+                Files.delete(path);
+                System.out.println("文件删除成功: " + path.toAbsolutePath());
+            } catch (IOException e) {
+                System.err.println("删除文件失败（但继续执行）: " + path.toAbsolutePath() + ", 错误: " + e.getMessage());
+                // 不抛异常，认为文件已被删除
+            }
+        } else {
+            System.out.println("文件不存在，视为已删除: " + path.toAbsolutePath());
         }
     }
     
     /**
      * 删除缩略图
      */
-    public void deleteThumbnail(String thumbnailPath) throws IOException {
+    public void deleteThumbnail(String thumbnailPath) {
+        if (thumbnailPath == null || thumbnailPath.isEmpty()) {
+            System.out.println("警告: 缩略图路径为空，跳过删除");
+            return;
+        }
+        
         Path path = Paths.get(this.thumbnailPath, thumbnailPath);
+        System.out.println("尝试删除缩略图: " + path.toAbsolutePath());
+        
         if (Files.exists(path)) {
-            Files.delete(path);
+            try {
+                Files.delete(path);
+                System.out.println("缩略图删除成功: " + path.toAbsolutePath());
+            } catch (IOException e) {
+                System.err.println("删除缩略图失败（但继续执行）: " + path.toAbsolutePath() + ", 错误: " + e.getMessage());
+                // 不抛异常，认为缩略图已被删除
+            }
+        } else {
+            System.out.println("缩略图不存在，视为已删除: " + path.toAbsolutePath());
         }
     }
     

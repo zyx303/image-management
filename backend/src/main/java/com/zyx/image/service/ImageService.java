@@ -242,7 +242,7 @@ public class ImageService {
      * 删除图片
      */
     @Transactional
-    public void deleteImage(Long id, Long userId) throws IOException {
+    public void deleteImage(Long id, Long userId) {
         Image image = imageMapper.selectById(id);
         if (image == null || image.getStatus() == 0) {
             throw new RuntimeException("图片不存在");
@@ -252,15 +252,14 @@ public class ImageService {
             throw new RuntimeException("无权删除此图片");
         }
         
-        // 删除文件
+        // 删除文件（即使文件不存在也不会抛异常）
         fileUtil.deleteFile(image.getFilePath());
         if (image.getThumbnailPath() != null) {
             fileUtil.deleteThumbnail(image.getThumbnailPath());
         }
         
-        // 逻辑删除
-        image.setStatus(0);
-        imageMapper.updateById(image);
+        // 使用 MyBatis-Plus 的逻辑删除（会自动将 status 设为 0）
+        imageMapper.deleteById(id);
         
         // 删除标签关联
         LambdaQueryWrapper<ImageTag> wrapper = new LambdaQueryWrapper<>();
@@ -272,7 +271,7 @@ public class ImageService {
      * 批量删除图片
      */
     @Transactional
-    public void batchDeleteImages(List<Long> ids, Long userId) throws IOException {
+    public void batchDeleteImages(List<Long> ids, Long userId) {
         for (Long id : ids) {
             deleteImage(id, userId);
         }

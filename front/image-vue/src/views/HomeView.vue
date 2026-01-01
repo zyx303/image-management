@@ -467,6 +467,12 @@ const handleBatchDelete = async () => {
     await imageStore.batchRemove(selectedImages.value)
     ElMessage.success('批量删除成功')
     selectedImages.value = []
+    // 刷新图片列表
+    if (selectedTags.value.length > 0) {
+      await loadImagesByTags(true)
+    } else {
+      await loadImages()
+    }
   } catch (error) {
     if (error !== 'cancel') {
       ElMessage.error('批量删除失败')

@@ -457,15 +457,22 @@ const handleDownload = () => {
 const handleDelete = async () => {
   try {
     await ElMessageBox.confirm('确定要删除这张图片吗？', '提示', {
-      type: 'warning'
+      type: 'warning',
+      confirmButtonText: '确定',
+      cancelButtonText: '取消'
     })
+  } catch {
+    // 用户点击取消
+    return
+  }
+
+  try {
     await imageStore.remove(image.value.id)
     ElMessage.success('删除成功')
     router.push('/')
   } catch (error) {
-    if (error !== 'cancel') {
-      ElMessage.error('删除失败')
-    }
+    console.error('删除图片失败:', error)
+    ElMessage.error('删除失败')
   }
 }
 </script>
