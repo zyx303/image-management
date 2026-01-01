@@ -98,12 +98,12 @@
 
             <div class="info-item">
               <label>格式</label>
-              <div class="info-value">{{ image.mimeType }}</div>
+              <div class="info-value">{{ image.fileType }}</div>
             </div>
 
             <div class="info-item">
               <label>上传时间</label>
-              <div class="info-value">{{ formatDate(image.createTime) }}</div>
+              <div class="info-value">{{ formatDate(image.uploadTime) }}</div>
             </div>
 
             <!-- EXIF 信息 -->
