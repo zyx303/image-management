@@ -90,10 +90,12 @@ public class ImageController {
     public Result<PageResult<ImageVO>> getUserImages(
             @RequestParam(defaultValue = "1") Long current,
             @RequestParam(defaultValue = "20") Long size,
+            @RequestParam(required = false) String sortField,
+            @RequestParam(required = false) String sortOrder,
             HttpServletRequest request) {
         try {
             Long userId = getUserIdFromRequest(request);
-            PageResult<ImageVO> result = imageService.getImageList(current, size, userId);
+            PageResult<ImageVO> result = imageService.getImageList(current, size, userId, sortField, sortOrder);
             return Result.success(result);
         } catch (Exception e) {
             return Result.error(e.getMessage());

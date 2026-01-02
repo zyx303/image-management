@@ -143,13 +143,39 @@ public class ImageService {
      * 获取图片列表
      */
     public PageResult<ImageVO> getImageList(Long current, Long size, Long userId) {
+        return getImageList(current, size, userId, null, null);
+    }
+    
+    /**
+     * 获取图片列表（支持排序）
+     */
+    public PageResult<ImageVO> getImageList(Long current, Long size, Long userId, String sortField, String sortOrder) {
         Page<Image> page = new Page<>(current, size);
         LambdaQueryWrapper<Image> wrapper = new LambdaQueryWrapper<>();
         wrapper.eq(Image::getStatus, 1);
         if (userId != null) {
             wrapper.eq(Image::getUserId, userId);
         }
-        wrapper.orderByDesc(Image::getUploadTime);
+        
+        // 动态排序
+        if (sortField != null && !sortField.isEmpty()) {
+            boolean isAsc = "asc".equalsIgnoreCase(sortOrder);
+            switch (sortField) {
+                case "createTime":
+                    wrapper.orderBy(true, isAsc, Image::getUploadTime);
+                    break;
+                case "fileName":
+                    wrapper.orderBy(true, isAsc, Image::getFileName);
+                    break;
+                case "fileSize":
+                    wrapper.orderBy(true, isAsc, Image::getFileSize);
+                    break;
+                default:
+                    wrapper.orderByDesc(Image::getUploadTime);
+            }
+        } else {
+            wrapper.orderByDesc(Image::getUploadTime);
+        }
         
         IPage<Image> imagePage = imageMapper.selectPage(page, wrapper);
         
