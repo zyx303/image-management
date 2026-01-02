@@ -54,6 +54,7 @@
               :prefix-icon="Search"
               clearable
               @keyup.enter="handleSearch"
+              @focus="handleSearchFocus"
             >
               <template #append>
                 <el-button :icon="Search" @click="handleSearch" />
@@ -378,13 +379,10 @@ const handleSearch = async () => {
   }
 }
 
-const handleCategorySelect = (index) => {
-  activeCategory.value = index
-  selectedTags.value = []
-  loadImages()
-}
-
 const handleTagSelect = async (tagId) => {
+  // 点击标签时清空搜索框
+  searchKeyword.value = ''
+  
   const index = selectedTags.value.indexOf(tagId)
   if (index > -1) {
     // 取消选择
@@ -396,6 +394,17 @@ const handleTagSelect = async (tagId) => {
   
   currentPage.value = 1
   await loadImagesByTags(true) // 强制刷新
+}
+
+const handleSearchFocus = () => {
+  // 点击搜索框时清空标签选择
+  if (selectedTags.value.length > 0) {
+    selectedTags.value = []
+    filteredImagesByTags.value = []
+    tagFilterLoaded.value = false
+    currentPage.value = 1
+    loadImages()
+  }
 }
 
 const clearTagSelection = () => {
