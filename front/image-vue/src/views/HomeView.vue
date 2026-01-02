@@ -220,7 +220,7 @@
             :current-page="currentPage"
             :page-size="pageSize"
             :total="imageStore.total"
-            :page-sizes="[10, 15, 20, 40]"
+            :page-sizes="[8, 12, 16, 24]"
             :layout="isMobile ? 'total, prev, pager, next, sizes' : 'total, sizes, prev, pager, next, jumper'"
             :small="isMobile"
             @update:current-page="handlePageChange"
@@ -321,7 +321,7 @@ const activeCategory = ref('all')
 const selectedTags = ref([])
 const selectedImages = ref([])
 const currentPage = ref(1)
-const pageSize = ref(10)
+const pageSize = ref(8)
 const filteredImagesByTags = ref([]) // 缓存多标签筛选结果
 const showAddTagDialog = ref(false)
 const showTagDrawer = ref(false) // 移动端标签抽屉
