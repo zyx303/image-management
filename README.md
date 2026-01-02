@@ -1,319 +1,142 @@
-# 图片管理系统
+# Docker 部署指南
 
-一个功能完善的Web图片管理系统，支持用户注册登录、图片上传存储、智能分类、检索查询、在线编辑等功能。
+本项目使用 Docker Compose 进行容器化部署，包含以下服务：
+- MySQL 8.0 数据库
+- Redis 7 缓存
+- Spring Boot 后端 API
+- Vue.js 前端应用
 
-## 技术栈
+## 前置要求
 
-### 前端
-- Vue 3.5.22
-- Vue Router 4.6.3
-- Pinia 3.0.3
-- Vite 7.1.11
+- Docker 20.10+
+- Docker Compose 2.0+
 
-### 后端
-- Spring Boot 3.5.7
-- MyBatis Plus 3.5.5
-- MySQL 8.0
-- Redis 7
-- JWT
+## 快速启动
 
-## 快速开始
-
-### 1. 启动数据库
-
-使用 Docker Compose 启动 MySQL 和 Redis：
+### 1. 首次部署
 
 ```bash
-docker compose up -d
+# 给脚本添加执行权限
+chmod +x docker-start.sh docker-stop.sh docker-logs.sh
+
+# 启动所有服务
+./docker-start.sh
 ```
 
-这将启动：
-- MySQL 8.0 (端口 3306)
-- Redis 7 (端口 6379)
+### 2. 访问应用
+请确认以下端口无占用，否则请修改 `docker compose.yml` 中的端口映射。
+- 前端页面: http://localhost:80
+- 后端 API: http://localhost:8080/api
+- MySQL: localhost:3307
+- Redis: localhost:6379
 
-数据库会自动初始化，创建所需的表和测试数据。
-
-#### 数据库连接信息
-
-**MySQL:**
-- 主机: localhost:3306
-- 数据库: image
-- 用户名: imageuser
-- 密码: imagepass123
-- Root密码: root123456
-
-**Redis:**
-- 主机: localhost:6379
-- 密码: redis123456
-
-#### 测试账号
-- 用户名: testuser
-- 密码: 123456
-
-### 2. 启动后端
-
-确保 JDK 21 已安装：
+### 3. 查看日志
 
 ```bash
-cd backend
-mvn spring-boot:run
+# 查看所有服务日志
+./docker-logs.sh
+
+# 或查看特定服务日志
+docker compose logs -f backend
+docker compose logs -f frontend
+docker compose logs -f mysql
 ```
 
-后端将在 http://localhost:8080 启动
-
-### 3. 启动前端
-
-确保 Node.js 20+ 已安装：
+### 4. 停止服务
 
 ```bash
-cd front/image-vue
-npm install
-npm run dev
+./docker-stop.sh
 ```
-
-前端将在 http://localhost:5173 启动
-
-### 4. 使用启动脚本
-
-或者使用提供的启动脚本（需要修改为并行启动）：
-
-```bash
-chmod +x start.sh
-./start.sh
-```
-
-## 项目结构
-
-```
-bs/
-├── backend/                    # 后端项目
-│   ├── src/
-│   │   ├── main/
-│   │   │   ├── java/com/zyx/image/
-│   │   │   │   ├── ImageApplication.java
-│   │   │   │   ├── config/          # 配置类
-│   │   │   │   ├── controller/      # 控制器
-│   │   │   │   ├── service/         # 服务层
-│   │   │   │   ├── entity/          # 实体类
-│   │   │   │   ├── mapper/          # Mapper
-│   │   │   │   └── utils/           # 工具类
-│   │   │   └── resources/
-│   │   │       ├── application.properties
-│   │   │       ├── application-dev.properties
-│   │   │       └── application-prod.properties
-│   │   └── test/
-│   └── pom.xml
-├── front/                      # 前端项目
-│   └── image-vue/
-│       ├── src/
-│       │   ├── views/          # 页面
-│       │   ├── components/     # 组件
-│       │   ├── router/         # 路由
-│       │   ├── stores/         # 状态管理
-│       │   └── api/            # API接口
-│       └── package.json
-├── database/                   # 数据库脚本
-│   ├── init/                   # 初始化脚本
-│   │   ├── 01-create-tables.sql
-│   │   └── 02-insert-test-data.sql
-│   └── conf/                   # MySQL配置
-│       └── my.cnf
-├── uploads/                    # 文件上传目录（自动创建）
-├── docker-compose.yml          # Docker配置
-├── start.sh                    # 启动脚本
-└── README.md                   # 项目说明
-```
-
-## 数据库表结构
-
-系统包含以下数据表：
-
-1. **user** - 用户表
-2. **image** - 图片表
-3. **tag** - 标签表
-4. **image_tag** - 图片标签关联表
-5. **album** - 相册表
-6. **album_image** - 相册图片关联表
-
-详细的表结构请查看 `database/init/01-create-tables.sql`
-
-## 核心功能
-
-### 已实现功能
-- [x] 项目初始化
-- [x] 数据库设计
-- [x] Docker环境配置
-
-### 待实现功能
-- [ ] 用户注册登录
-- [ ] 图片上传（单张/批量）
-- [ ] EXIF信息解析
-- [ ] 缩略图生成
-- [ ] 标签管理（自动/自定义）
-- [ ] 图片检索
-- [ ] 图片展示（网格/瀑布流/轮播）
-- [ ] 图片编辑（裁剪/滤镜）
-- [ ] 移动端适配
-- [ ] AI图片分析（增强功能）
-- [ ] MCP接口（增强功能）
-
-## 开发环境
-
-### 环境要求
-- JDK 21+
-- Node.js 20+
-- Maven 3.6+
-- Docker & Docker Compose
-
-### IDE推荐
-- 后端: IntelliJ IDEA
-- 前端: VS Code / Cursor
 
 ## 常用命令
 
-### Docker 命令
+### 重新构建服务
+
 ```bash
-# 启动服务
-docker compose up -d
+# 重新构建所有服务
+docker compose build
 
-# 停止服务
-docker compose down
+# 重新构建特定服务
+docker compose build backend
+docker compose build frontend
+```
 
-# 查看日志
-docker compose logs -f mysql
+### 启动/停止单个服务
 
-# 重启服务
-docker compose restart
+```bash
+# 启动
+docker compose up -d backend
+docker compose up -d frontend
 
-# 查看服务状态
+# 停止
+docker compose stop backend
+docker compose stop frontend
+```
+
+### 进入容器
+
+```bash
+# 进入后端容器
+docker compose exec backend bash
+
+# 进入数据库容器
+docker compose exec mysql bash
+
+# 执行 SQL
+docker compose exec mysql mysql -uroot -proot123456 image
+```
+
+### 查看容器状态
+
+```bash
 docker compose ps
 ```
 
-### 后端命令
+### 完全清理（删除数据卷）
+
 ```bash
-# 编译
-mvn clean compile
-
-# 打包
-mvn clean package
-
-# 运行
-mvn spring-boot:run
-
-# 跳过测试打包
-mvn clean package -DskipTests
+# 警告：这将删除所有数据！
+docker compose down -v
 ```
 
-### 前端命令
-```bash
-# 安装依赖
-npm install
+## 服务说明
 
-# 开发模式
-npm run dev
+### MySQL
+- 端口: 3307 (映射到容器的 3306)
+- 数据库: image
+- Root 密码: root123456
+- 用户: imageuser / imagepass123
+- 数据持久化: mysql_data 卷
 
-# 生产构建
-npm run build
+### Redis
+- 端口: 6379
+- 密码: redis123456
+- 数据持久化: redis_data 卷
 
-# 代码检查
-npm run lint
+### Backend
+- 端口: 8080
+- 上传文件存储: ./uploads (映射到容器 /app/uploads)
+- 健康检查: http://localhost:8080/api/actuator/health
 
-# 代码格式化
-npm run format
+### Frontend
+- 端口: 80
+- Nginx 服务器
+- 自动代理 /api/* 请求到后端
+
+## 环境变量配置
+
+可以创建 `.env` 文件来自定义环境变量：
+
+```env
+# MySQL
+MYSQL_ROOT_PASSWORD=your_password
+MYSQL_DATABASE=image
+MYSQL_USER=imageuser
+MYSQL_PASSWORD=your_user_password
+
+# Redis
+REDIS_PASSWORD=your_redis_password
+
+# Backend
+SPRING_PROFILES_ACTIVE=prod
 ```
-
-## 数据库管理
-
-### 连接MySQL
-```bash
-# 使用Docker容器连接
-docker exec -it image-management-mysql mysql -u imageuser -p
-
-# 或使用root用户
-docker exec -it image-management-mysql mysql -u root -p
-```
-
-### 手动创建数据库（如需要）
-```sql
-CREATE DATABASE IF NOT EXISTS image 
-  CHARACTER SET utf8mb4 
-  COLLATE utf8mb4_unicode_ci;
-```
-
-### 导入初始化脚本（如需要）
-```bash
-docker exec -i image-management-mysql mysql -u root -proot123456 image < database/init/01-create-tables.sql
-docker exec -i image-management-mysql mysql -u root -proot123456 image < database/init/02-insert-test-data.sql
-```
-
-## API接口文档
-
-### 认证接口
-- POST `/api/auth/register` - 用户注册
-- POST `/api/auth/login` - 用户登录
-- POST `/api/auth/logout` - 用户登出
-
-### 图片接口
-- GET `/api/images` - 获取图片列表
-- GET `/api/images/{id}` - 获取图片详情
-- POST `/api/images/upload` - 上传图片
-- PUT `/api/images/{id}` - 更新图片信息
-- DELETE `/api/images/{id}` - 删除图片
-
-详细API文档将在开发过程中补充。
-
-## 配置说明
-
-### 修改数据库密码
-
-编辑 `docker-compose.yml`:
-```yaml
-environment:
-  MYSQL_ROOT_PASSWORD: 你的root密码
-  MYSQL_PASSWORD: 你的用户密码
-```
-
-同时修改 `backend/src/main/resources/application.properties`:
-```properties
-spring.datasource.password=你的用户密码
-```
-
-### 修改上传路径
-
-编辑 `backend/src/main/resources/application.properties`:
-```properties
-file.upload.path=你的上传路径
-```
-
-## 故障排查
-
-### 数据库连接失败
-1. 确认 Docker 容器正在运行: `docker compose ps`
-2. 检查数据库密码是否正确
-3. 查看数据库日志: `docker compose logs mysql`
-
-### 端口冲突
-如果端口被占用，修改 `docker-compose.yml` 中的端口映射：
-```yaml
-ports:
-  - "3307:3306"  # 将MySQL映射到3307端口
-```
-
-### 上传目录权限
-```bash
-mkdir -p uploads/thumbnails
-chmod -R 755 uploads
-```
-
-## 贡献
-
-本项目为课程设计项目。
-
-## 许可
-
-MIT License
-
-## 联系方式
-
-如有问题，请联系开发者。
-

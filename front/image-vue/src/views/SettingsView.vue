@@ -330,7 +330,7 @@ const handleToggleKey = async (row) => {
       ElMessage.error(res.message || '操作失败')
     }
   } catch (error) {
-    ElMessage.error('操作失败')
+    ElMessage.error('操作失败:',error)
   }
 }
 
@@ -422,7 +422,7 @@ const handleSaveAiConfig = async () => {
       ElMessage.error(res.message || '保存失败')
     }
   } catch (error) {
-    ElMessage.error('保存失败')
+    ElMessage.error('保存失败:' + error)
   } finally {
     savingAiConfig.value = false
   }
@@ -443,7 +443,7 @@ const handleTestAiConfig = async () => {
       ElMessage.error(res.data?.message || res.message || '连接测试失败')
     }
   } catch (error) {
-    ElMessage.error('连接测试失败')
+    ElMessage.error('连接测试失败:' + error)
   } finally {
     testingAiConfig.value = false
   }
