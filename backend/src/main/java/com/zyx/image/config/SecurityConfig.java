@@ -42,6 +42,7 @@ public class SecurityConfig {
             .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers("/auth/register", "/auth/login").permitAll()
+                .requestMatchers("/actuator/**").permitAll() // 允许访问 Actuator 端点
                 .anyRequest().permitAll() // 暂时允许所有请求，Controller中会验证Token和权限
             );
         
