@@ -354,13 +354,13 @@ class FileAccessController {
                 // 如果无法自动检测，根据文件扩展名设置
                 String filename = filePath.getFileName().toString().toLowerCase();
                 if (filename.endsWith(".jpg") || filename.endsWith(".jpeg")) {
-                    contentType = "jpeg";
+                    contentType = "image/jpeg";
                 } else if (filename.endsWith(".png")) {
-                    contentType = "png";
+                    contentType = "image/png";
                 } else if (filename.endsWith(".gif")) {
-                    contentType = "gif";
+                    contentType = "image/gif";
                 } else if (filename.endsWith(".webp")) {
-                    contentType = "webp";
+                    contentType = "image/webp";
                 } else {
                     contentType = MediaType.APPLICATION_OCTET_STREAM_VALUE;
                 }

@@ -8,14 +8,14 @@
 [INFO] >>> spring-boot:3.3.5:run (default-cli) > test-compile @ image >>>
 [INFO] 
 [INFO] --- resources:3.3.1:resources (default-resources) @ image ---
-[INFO] Copying 3 resources from src/main/resources to target/classes
+[INFO] Copying 4 resources from src/main/resources to target/classes
 [INFO] Copying 0 resource from src/main/resources to target/classes
 [INFO] 
 [INFO] --- compiler:3.13.0:compile (default-compile) @ image ---
 [INFO] Nothing to compile - all classes are up to date.
 [INFO] 
 [INFO] --- resources:3.3.1:testResources (default-testResources) @ image ---
-[INFO] skip non existing resourceDirectory /home/zyx/bs/backend/src/test/resources
+[INFO] skip non existing resourceDirectory /home/zyx/work/bs/backend/src/test/resources
 [INFO] 
 [INFO] --- compiler:3.13.0:testCompile (default-testCompile) @ image ---
 [INFO] Nothing to compile - all classes are up to date.
@@ -35,185 +35,89 @@
 
  :: Spring Boot ::                (v3.3.5)
 
-2025-11-17 15:40:43 [restartedMain] INFO  com.zyx.image.ImageApplication - Starting ImageApplication using Java 21.0.8 with PID 20384 (/home/zyx/bs/backend/target/classes started by zyx in /home/zyx/bs/backend)
-2025-11-17 15:40:43 [restartedMain] DEBUG com.zyx.image.ImageApplication - Running with Spring Boot v3.3.5, Spring v6.1.14
-2025-11-17 15:40:43 [restartedMain] INFO  com.zyx.image.ImageApplication - No active profile set, falling back to 1 default profile: "default"
-2025-11-17 15:40:43 [restartedMain] INFO  o.s.b.d.env.DevToolsPropertyDefaultsPostProcessor - Devtools property defaults active! Set 'spring.devtools.add-properties' to 'false' to disable
-2025-11-17 15:40:43 [restartedMain] INFO  o.s.b.d.env.DevToolsPropertyDefaultsPostProcessor - For additional web related logging consider setting the 'logging.level.web' property to 'DEBUG'
-2025-11-17 15:40:43 [restartedMain] INFO  o.s.d.r.config.RepositoryConfigurationDelegate - Multiple Spring Data modules found, entering strict repository configuration mode
-2025-11-17 15:40:43 [restartedMain] INFO  o.s.d.r.config.RepositoryConfigurationDelegate - Bootstrapping Spring Data Redis repositories in DEFAULT mode.
-2025-11-17 15:40:43 [restartedMain] INFO  o.s.d.r.config.RepositoryConfigurationDelegate - Finished Spring Data repository scanning in 11 ms. Found 0 Redis repository interfaces.
-2025-11-17 15:40:44 [restartedMain] INFO  o.s.boot.web.embedded.tomcat.TomcatWebServer - Tomcat initialized with port 8080 (http)
-2025-11-17 15:40:44 [restartedMain] INFO  org.apache.catalina.core.StandardService - Starting service [Tomcat]
-2025-11-17 15:40:44 [restartedMain] INFO  org.apache.catalina.core.StandardEngine - Starting Servlet engine: [Apache Tomcat/10.1.31]
-2025-11-17 15:40:44 [restartedMain] INFO  o.a.c.c.ContainerBase.[Tomcat].[localhost].[/api] - Initializing Spring embedded WebApplicationContext
-2025-11-17 15:40:44 [restartedMain] INFO  o.s.b.w.s.c.ServletWebServerApplicationContext - Root WebApplicationContext: initialization completed in 1216 ms
-2025-11-17 15:40:44 [restartedMain] DEBUG com.zyx.image.filter.JwtAuthenticationFilter - Filter 'jwtAuthenticationFilter' configured for use
-2025-11-17 15:40:44 [restartedMain] DEBUG com.zaxxer.hikari.HikariConfig - Driver class com.mysql.cj.jdbc.Driver found in Thread context class loader org.springframework.boot.devtools.restart.classloader.RestartClassLoader@4c9b0f91
+2026-01-02 23:49:56 [restartedMain] INFO  com.zyx.image.ImageApplication - Starting ImageApplication using Java 21.0.9 with PID 12869 (/home/zyx/work/bs/backend/target/classes started by zyx in /home/zyx/work/bs/backend)
+2026-01-02 23:49:56 [restartedMain] DEBUG com.zyx.image.ImageApplication - Running with Spring Boot v3.3.5, Spring v6.1.14
+2026-01-02 23:49:56 [restartedMain] INFO  com.zyx.image.ImageApplication - No active profile set, falling back to 1 default profile: "default"
+2026-01-02 23:49:56 [restartedMain] INFO  o.s.b.d.env.DevToolsPropertyDefaultsPostProcessor - Devtools property defaults active! Set 'spring.devtools.add-properties' to 'false' to disable
+2026-01-02 23:49:56 [restartedMain] INFO  o.s.b.d.env.DevToolsPropertyDefaultsPostProcessor - For additional web related logging consider setting the 'logging.level.web' property to 'DEBUG'
+2026-01-02 23:49:56 [restartedMain] INFO  o.s.d.r.config.RepositoryConfigurationDelegate - Multiple Spring Data modules found, entering strict repository configuration mode
+2026-01-02 23:49:56 [restartedMain] INFO  o.s.d.r.config.RepositoryConfigurationDelegate - Bootstrapping Spring Data Redis repositories in DEFAULT mode.
+2026-01-02 23:49:56 [restartedMain] INFO  o.s.d.r.config.RepositoryConfigurationDelegate - Finished Spring Data repository scanning in 10 ms. Found 0 Redis repository interfaces.
+2026-01-02 23:49:57 [restartedMain] INFO  o.s.boot.web.embedded.tomcat.TomcatWebServer - Tomcat initialized with port 8080 (http)
+2026-01-02 23:49:57 [restartedMain] INFO  org.apache.catalina.core.StandardService - Starting service [Tomcat]
+2026-01-02 23:49:57 [restartedMain] INFO  org.apache.catalina.core.StandardEngine - Starting Servlet engine: [Apache Tomcat/10.1.31]
+2026-01-02 23:49:57 [restartedMain] INFO  o.a.c.c.ContainerBase.[Tomcat].[localhost].[/api] - Initializing Spring embedded WebApplicationContext
+2026-01-02 23:49:57 [restartedMain] INFO  o.s.b.w.s.c.ServletWebServerApplicationContext - Root WebApplicationContext: initialization completed in 814 ms
+2026-01-02 23:49:57 [restartedMain] DEBUG com.zyx.image.filter.JwtAuthenticationFilter - Filter 'jwtAuthenticationFilter' configured for use
 Logging initialized using 'class org.apache.ibatis.logging.stdout.StdOutImpl' adapter.
 Get /10.255.255.254 network interface 
 Get network interface info: name:lo (lo)
-Initialization Sequence datacenterId:0 workerId:1
+Initialization Sequence datacenterId:0 workerId:10
  _ _   |_  _ _|_. ___ _ |    _ 
 | | |\/|_)(_| | |_\  |_)||_|_\ 
      /               |         
                         3.5.14 
-2025-11-17 15:40:45 [restartedMain] WARN  o.s.b.a.s.s.UserDetailsServiceAutoConfiguration - 
+2026-01-02 23:49:57 [restartedMain] WARN  o.s.b.w.s.c.AnnotationConfigServletWebServerApplicationContext - Exception encountered during context initialization - cancelling refresh attempt: org.springframework.beans.factory.BeanCreationException: Error creating bean with name 'apiKeyController': Lookup method resolution failed
+2026-01-02 23:49:57 [restartedMain] INFO  org.apache.catalina.core.StandardService - Stopping service [Tomcat]
+2026-01-02 23:49:57 [restartedMain] INFO  o.s.b.a.logging.ConditionEvaluationReportLogger - 
 
-Using generated security password: bfb0ab8b-3bc2-4121-a11d-6be92a68055c
-
-This generated password is for development use only. Your security configuration must be updated before running your application in production.
-
-2025-11-17 15:40:45 [restartedMain] INFO  o.s.s.c.a.a.c.InitializeUserDetailsBeanManagerConfigurer$InitializeUserDetailsManagerConfigurer - Global AuthenticationManager configured with UserDetailsService bean with name inMemoryUserDetailsManager
-2025-11-17 15:40:45 [restartedMain] INFO  c.b.m.e.spring.MybatisPlusApplicationContextAware - Register ApplicationContext instances org.springframework.boot.web.servlet.context.AnnotationConfigServletWebServerApplicationContext@181bfc8b
-2025-11-17 15:40:45 [restartedMain] INFO  o.s.b.d.autoconfigure.OptionalLiveReloadServer - LiveReload server is running on port 35729
-2025-11-17 15:40:45 [restartedMain] INFO  o.s.boot.web.embedded.tomcat.TomcatWebServer - Tomcat started on port 8080 (http) with context path '/api'
-2025-11-17 15:40:45 [restartedMain] INFO  com.zyx.image.ImageApplication - Started ImageApplication in 2.747 seconds (process running for 3.045)
-2025-11-17 15:40:56 [http-nio-8080-exec-1] INFO  o.a.c.c.ContainerBase.[Tomcat].[localhost].[/api] - Initializing Spring DispatcherServlet 'dispatcherServlet'
-2025-11-17 15:40:56 [http-nio-8080-exec-1] INFO  org.springframework.web.servlet.DispatcherServlet - Initializing Servlet 'dispatcherServlet'
-2025-11-17 15:40:57 [http-nio-8080-exec-1] INFO  org.springframework.web.servlet.DispatcherServlet - Completed initialization in 31 ms
-Creating a new SqlSession
-SqlSession [org.apache.ibatis.session.defaults.DefaultSqlSession@4b1677c3] was not registered for synchronization because synchronization is not active
-2025-11-17 15:40:57 [http-nio-8080-exec-1] DEBUG com.zaxxer.hikari.HikariConfig - HikariPool-1 - configuration:
-2025-11-17 15:40:57 [http-nio-8080-exec-1] DEBUG com.zaxxer.hikari.HikariConfig - allowPoolSuspension.............false
-2025-11-17 15:40:57 [http-nio-8080-exec-1] DEBUG com.zaxxer.hikari.HikariConfig - autoCommit......................true
-2025-11-17 15:40:57 [http-nio-8080-exec-1] DEBUG com.zaxxer.hikari.HikariConfig - catalog.........................none
-2025-11-17 15:40:57 [http-nio-8080-exec-1] DEBUG com.zaxxer.hikari.HikariConfig - connectionInitSql...............none
-2025-11-17 15:40:57 [http-nio-8080-exec-1] DEBUG com.zaxxer.hikari.HikariConfig - connectionTestQuery.............none
-2025-11-17 15:40:57 [http-nio-8080-exec-1] DEBUG com.zaxxer.hikari.HikariConfig - connectionTimeout...............30000
-2025-11-17 15:40:57 [http-nio-8080-exec-1] DEBUG com.zaxxer.hikari.HikariConfig - dataSource......................none
-2025-11-17 15:40:57 [http-nio-8080-exec-1] DEBUG com.zaxxer.hikari.HikariConfig - dataSourceClassName.............none
-2025-11-17 15:40:57 [http-nio-8080-exec-1] DEBUG com.zaxxer.hikari.HikariConfig - dataSourceJNDI..................none
-2025-11-17 15:40:57 [http-nio-8080-exec-1] DEBUG com.zaxxer.hikari.HikariConfig - dataSourceProperties............{password=<masked>}
-2025-11-17 15:40:57 [http-nio-8080-exec-1] DEBUG com.zaxxer.hikari.HikariConfig - driverClassName................."com.mysql.cj.jdbc.Driver"
-2025-11-17 15:40:57 [http-nio-8080-exec-1] DEBUG com.zaxxer.hikari.HikariConfig - exceptionOverrideClassName......none
-2025-11-17 15:40:57 [http-nio-8080-exec-1] DEBUG com.zaxxer.hikari.HikariConfig - healthCheckProperties...........{}
-2025-11-17 15:40:57 [http-nio-8080-exec-1] DEBUG com.zaxxer.hikari.HikariConfig - healthCheckRegistry.............none
-2025-11-17 15:40:57 [http-nio-8080-exec-1] DEBUG com.zaxxer.hikari.HikariConfig - idleTimeout.....................300000
-2025-11-17 15:40:57 [http-nio-8080-exec-1] DEBUG com.zaxxer.hikari.HikariConfig - initializationFailTimeout.......1
-2025-11-17 15:40:57 [http-nio-8080-exec-1] DEBUG com.zaxxer.hikari.HikariConfig - isolateInternalQueries..........false
-2025-11-17 15:40:57 [http-nio-8080-exec-1] DEBUG com.zaxxer.hikari.HikariConfig - jdbcUrl.........................jdbc:mysql://127.0.0.1:3307/image?useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true
-2025-11-17 15:40:57 [http-nio-8080-exec-1] DEBUG com.zaxxer.hikari.HikariConfig - keepaliveTime...................0
-2025-11-17 15:40:57 [http-nio-8080-exec-1] DEBUG com.zaxxer.hikari.HikariConfig - leakDetectionThreshold..........0
-2025-11-17 15:40:57 [http-nio-8080-exec-1] DEBUG com.zaxxer.hikari.HikariConfig - maxLifetime.....................1200000
-2025-11-17 15:40:57 [http-nio-8080-exec-1] DEBUG com.zaxxer.hikari.HikariConfig - maximumPoolSize.................20
-2025-11-17 15:40:57 [http-nio-8080-exec-1] DEBUG com.zaxxer.hikari.HikariConfig - metricRegistry..................none
-2025-11-17 15:40:57 [http-nio-8080-exec-1] DEBUG com.zaxxer.hikari.HikariConfig - metricsTrackerFactory...........none
-2025-11-17 15:40:57 [http-nio-8080-exec-1] DEBUG com.zaxxer.hikari.HikariConfig - minimumIdle.....................5
-2025-11-17 15:40:57 [http-nio-8080-exec-1] DEBUG com.zaxxer.hikari.HikariConfig - password........................<masked>
-2025-11-17 15:40:57 [http-nio-8080-exec-1] DEBUG com.zaxxer.hikari.HikariConfig - poolName........................"HikariPool-1"
-2025-11-17 15:40:57 [http-nio-8080-exec-1] DEBUG com.zaxxer.hikari.HikariConfig - readOnly........................false
-2025-11-17 15:40:57 [http-nio-8080-exec-1] DEBUG com.zaxxer.hikari.HikariConfig - registerMbeans..................false
-2025-11-17 15:40:57 [http-nio-8080-exec-1] DEBUG com.zaxxer.hikari.HikariConfig - scheduledExecutor...............none
-2025-11-17 15:40:57 [http-nio-8080-exec-1] DEBUG com.zaxxer.hikari.HikariConfig - schema..........................none
-2025-11-17 15:40:57 [http-nio-8080-exec-1] DEBUG com.zaxxer.hikari.HikariConfig - threadFactory...................internal
-2025-11-17 15:40:57 [http-nio-8080-exec-1] DEBUG com.zaxxer.hikari.HikariConfig - transactionIsolation............default
-2025-11-17 15:40:57 [http-nio-8080-exec-1] DEBUG com.zaxxer.hikari.HikariConfig - username........................"root"
-2025-11-17 15:40:57 [http-nio-8080-exec-1] DEBUG com.zaxxer.hikari.HikariConfig - validationTimeout...............5000
-2025-11-17 15:40:57 [http-nio-8080-exec-1] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Starting...
-2025-11-17 15:40:57 [http-nio-8080-exec-1] INFO  com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - Added connection com.mysql.cj.jdbc.ConnectionImpl@17bb10bc
-2025-11-17 15:40:57 [http-nio-8080-exec-1] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Start completed.
-JDBC Connection [HikariProxyConnection@76222007 wrapping com.mysql.cj.jdbc.ConnectionImpl@17bb10bc] will not be managed by Spring
-==>  Preparing: SELECT id,username,password,email,nickname,avatar,phone,status,create_time,update_time FROM user WHERE status=1 AND (username = ?)
-==> Parameters: zyx(String)
-<==    Columns: id, username, password, email, nickname, avatar, phone, status, create_time, update_time
-<==        Row: 4, zyx, $2a$10$gbrXHtM..mEbK.S2csP4G.yP1Hla3vGCzbzw4vhijP8RtwBn1Bj06, 2091183827@qq.com, 测试用户, null, null, 1, 2025-11-17 15:35:55, 2025-11-17 15:35:55
-<==      Total: 1
-Closing non transactional SqlSession [org.apache.ibatis.session.defaults.DefaultSqlSession@4b1677c3]
-2025-11-17 15:40:57 [HikariPool-1 housekeeper] DEBUG com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - Before cleanup stats (total=1, active=0, idle=1, waiting=0)
-2025-11-17 15:40:57 [HikariPool-1 housekeeper] DEBUG com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - After cleanup  stats (total=1, active=0, idle=1, waiting=0)
-2025-11-17 15:40:57 [HikariPool-1 connection adder] DEBUG com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - Added connection com.mysql.cj.jdbc.ConnectionImpl@1e9b7d43
-2025-11-17 15:40:57 [HikariPool-1 connection adder] DEBUG com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - After adding stats (total=2, active=0, idle=2, waiting=0)
-2025-11-17 15:40:57 [HikariPool-1 connection adder] DEBUG com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - Added connection com.mysql.cj.jdbc.ConnectionImpl@5fa67778
-2025-11-17 15:40:57 [HikariPool-1 connection adder] DEBUG com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - After adding stats (total=3, active=0, idle=3, waiting=0)
-2025-11-17 15:40:57 [HikariPool-1 connection adder] DEBUG com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - Added connection com.mysql.cj.jdbc.ConnectionImpl@6eb3e9a3
-2025-11-17 15:40:57 [HikariPool-1 connection adder] DEBUG com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - After adding stats (total=4, active=0, idle=4, waiting=0)
-2025-11-17 15:40:57 [HikariPool-1 connection adder] DEBUG com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - Added connection com.mysql.cj.jdbc.ConnectionImpl@3f898837
-2025-11-17 15:40:57 [HikariPool-1 connection adder] DEBUG com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - After adding stats (total=5, active=0, idle=5, waiting=0)
-2025-11-17 15:41:27 [HikariPool-1 housekeeper] DEBUG com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - Before cleanup stats (total=5, active=0, idle=5, waiting=0)
-2025-11-17 15:41:27 [HikariPool-1 housekeeper] DEBUG com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - After cleanup  stats (total=5, active=0, idle=5, waiting=0)
-2025-11-17 15:41:27 [HikariPool-1 housekeeper] DEBUG com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - Fill pool skipped, pool has sufficient level or currently being filled.
-Creating a new SqlSession
-Registering transaction synchronization for SqlSession [org.apache.ibatis.session.defaults.DefaultSqlSession@52211e1c]
-JDBC Connection [HikariProxyConnection@1964002197 wrapping com.mysql.cj.jdbc.ConnectionImpl@17bb10bc] will be managed by Spring
-==>  Preparing: SELECT id,username,password,email,nickname,avatar,phone,status,create_time,update_time FROM user WHERE status=1 AND (username = ?)
-==> Parameters: 123456(String)
-<==      Total: 0
-Releasing transactional SqlSession [org.apache.ibatis.session.defaults.DefaultSqlSession@52211e1c]
-Fetched SqlSession [org.apache.ibatis.session.defaults.DefaultSqlSession@52211e1c] from current transaction
-==>  Preparing: SELECT id,username,password,email,nickname,avatar,phone,status,create_time,update_time FROM user WHERE status=1 AND (email = ?)
-==> Parameters: 2091183827@qq.com(String)
-<==    Columns: id, username, password, email, nickname, avatar, phone, status, create_time, update_time
-<==        Row: 4, zyx, $2a$10$gbrXHtM..mEbK.S2csP4G.yP1Hla3vGCzbzw4vhijP8RtwBn1Bj06, 2091183827@qq.com, 测试用户, null, null, 1, 2025-11-17 15:35:55, 2025-11-17 15:35:55
-<==      Total: 1
-Releasing transactional SqlSession [org.apache.ibatis.session.defaults.DefaultSqlSession@52211e1c]
-Transaction synchronization deregistering SqlSession [org.apache.ibatis.session.defaults.DefaultSqlSession@52211e1c]
-Transaction synchronization closing SqlSession [org.apache.ibatis.session.defaults.DefaultSqlSession@52211e1c]
-Creating a new SqlSession
-Registering transaction synchronization for SqlSession [org.apache.ibatis.session.defaults.DefaultSqlSession@441d0362]
-JDBC Connection [HikariProxyConnection@1323657234 wrapping com.mysql.cj.jdbc.ConnectionImpl@17bb10bc] will be managed by Spring
-==>  Preparing: SELECT id,username,password,email,nickname,avatar,phone,status,create_time,update_time FROM user WHERE status=1 AND (username = ?)
-==> Parameters: 123456(String)
-<==      Total: 0
-Releasing transactional SqlSession [org.apache.ibatis.session.defaults.DefaultSqlSession@441d0362]
-Fetched SqlSession [org.apache.ibatis.session.defaults.DefaultSqlSession@441d0362] from current transaction
-==>  Preparing: SELECT id,username,password,email,nickname,avatar,phone,status,create_time,update_time FROM user WHERE status=1 AND (email = ?)
-==> Parameters: 111@qq.com(String)
-<==      Total: 0
-Releasing transactional SqlSession [org.apache.ibatis.session.defaults.DefaultSqlSession@441d0362]
-Fetched SqlSession [org.apache.ibatis.session.defaults.DefaultSqlSession@441d0362] from current transaction
-==>  Preparing: INSERT INTO user ( username, password, email, nickname, status ) VALUES ( ?, ?, ?, ?, ? )
-==> Parameters: 123456(String), $2a$10$7uxVJi10VKPbr.onOsVXweyFpibG9ks/iPKoxj8yhlFYRvtdn1ohy(String), 111@qq.com(String), 测试用户(String), 1(Integer)
-<==    Updates: 1
-Releasing transactional SqlSession [org.apache.ibatis.session.defaults.DefaultSqlSession@441d0362]
-Transaction synchronization committing SqlSession [org.apache.ibatis.session.defaults.DefaultSqlSession@441d0362]
-Transaction synchronization deregistering SqlSession [org.apache.ibatis.session.defaults.DefaultSqlSession@441d0362]
-Transaction synchronization closing SqlSession [org.apache.ibatis.session.defaults.DefaultSqlSession@441d0362]
-Creating a new SqlSession
-SqlSession [org.apache.ibatis.session.defaults.DefaultSqlSession@421adb21] was not registered for synchronization because synchronization is not active
-JDBC Connection [HikariProxyConnection@1289567506 wrapping com.mysql.cj.jdbc.ConnectionImpl@17bb10bc] will not be managed by Spring
-==>  Preparing: SELECT id,username,password,email,nickname,avatar,phone,status,create_time,update_time FROM user WHERE status=1 AND (username = ?)
-==> Parameters: 123456(String)
-<==    Columns: id, username, password, email, nickname, avatar, phone, status, create_time, update_time
-<==        Row: 5, 123456, $2a$10$7uxVJi10VKPbr.onOsVXweyFpibG9ks/iPKoxj8yhlFYRvtdn1ohy, 111@qq.com, 测试用户, null, null, 1, 2025-11-17 15:41:37, 2025-11-17 15:41:37
-<==      Total: 1
-Closing non transactional SqlSession [org.apache.ibatis.session.defaults.DefaultSqlSession@421adb21]
-Creating a new SqlSession
-SqlSession [org.apache.ibatis.session.defaults.DefaultSqlSession@14879c03] was not registered for synchronization because synchronization is not active
-JDBC Connection [HikariProxyConnection@1261826189 wrapping com.mysql.cj.jdbc.ConnectionImpl@17bb10bc] will not be managed by Spring
-==>  Preparing: SELECT id,username,password,email,nickname,avatar,phone,status,create_time,update_time FROM user WHERE status=1 AND (username = ?)
-==> Parameters: 123456(String)
-<==    Columns: id, username, password, email, nickname, avatar, phone, status, create_time, update_time
-<==        Row: 5, 123456, $2a$10$7uxVJi10VKPbr.onOsVXweyFpibG9ks/iPKoxj8yhlFYRvtdn1ohy, 111@qq.com, 测试用户, null, null, 1, 2025-11-17 15:41:37, 2025-11-17 15:41:37
-<==      Total: 1
-Closing non transactional SqlSession [org.apache.ibatis.session.defaults.DefaultSqlSession@14879c03]
-Creating a new SqlSession
-SqlSession [org.apache.ibatis.session.defaults.DefaultSqlSession@77ab0abc] was not registered for synchronization because synchronization is not active
-JDBC Connection [HikariProxyConnection@1099637149 wrapping com.mysql.cj.jdbc.ConnectionImpl@17bb10bc] will not be managed by Spring
-==>  Preparing: SELECT id,tag_name,tag_type,use_count,create_time FROM tag
-==> Parameters: 
-<==    Columns: id, tag_name, tag_type, use_count, create_time
-<==        Row: 1, 风景, 1, 0, 2025-11-17 14:13:33
-<==        Row: 2, 人物, 1, 0, 2025-11-17 14:13:33
-<==        Row: 3, 动物, 1, 0, 2025-11-17 14:13:33
-<==        Row: 4, 建筑, 1, 0, 2025-11-17 14:13:33
-<==        Row: 5, 美食, 1, 0, 2025-11-17 14:13:33
-<==        Row: 6, 旅行, 2, 0, 2025-11-17 14:13:33
-<==        Row: 7, 生活, 2, 0, 2025-11-17 14:13:33
-<==        Row: 8, 工作, 2, 0, 2025-11-17 14:13:33
-<==        Row: 9, 家庭, 2, 0, 2025-11-17 14:13:33
-<==        Row: 10, 朋友, 2, 0, 2025-11-17 14:13:33
-<==      Total: 10
-Creating a new SqlSession
-SqlSession [org.apache.ibatis.session.defaults.DefaultSqlSession@5bd1fcc9] was not registered for synchronization because synchronization is not active
-Closing non transactional SqlSession [org.apache.ibatis.session.defaults.DefaultSqlSession@77ab0abc]
-JDBC Connection [HikariProxyConnection@1168126643 wrapping com.mysql.cj.jdbc.ConnectionImpl@17bb10bc] will not be managed by Spring
-==>  Preparing: SELECT COUNT(*) AS total FROM image WHERE status = 1 AND (status = ? AND user_id = ?)
-==> Parameters: 1(Integer), 5(Long)
-<==    Columns: total
-<==        Row: 0
-<==      Total: 1
-Closing non transactional SqlSession [org.apache.ibatis.session.defaults.DefaultSqlSession@5bd1fcc9]
-2025-11-17 15:41:57 [HikariPool-1 housekeeper] DEBUG com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - Before cleanup stats (total=5, active=0, idle=5, waiting=0)
-2025-11-17 15:41:57 [HikariPool-1 housekeeper] DEBUG com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - After cleanup  stats (total=5, active=0, idle=5, waiting=0)
-2025-11-17 15:41:57 [HikariPool-1 housekeeper] DEBUG com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - Fill pool skipped, pool has sufficient level or currently being filled.
+Error starting ApplicationContext. To display the condition evaluation report re-run your application with 'debug' enabled.
+2026-01-02 23:49:57 [restartedMain] ERROR org.springframework.boot.SpringApplication - Application run failed
+org.springframework.beans.factory.BeanCreationException: Error creating bean with name 'apiKeyController': Lookup method resolution failed
+	at org.springframework.beans.factory.annotation.AutowiredAnnotationBeanPostProcessor.checkLookupMethods(AutowiredAnnotationBeanPostProcessor.java:498)
+	at org.springframework.beans.factory.annotation.AutowiredAnnotationBeanPostProcessor.determineCandidateConstructors(AutowiredAnnotationBeanPostProcessor.java:368)
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.determineConstructorsFromBeanPostProcessors(AbstractAutowireCapableBeanFactory.java:1314)
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.createBeanInstance(AbstractAutowireCapableBeanFactory.java:1209)
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.doCreateBean(AbstractAutowireCapableBeanFactory.java:562)
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.createBean(AbstractAutowireCapableBeanFactory.java:522)
+	at org.springframework.beans.factory.support.AbstractBeanFactory.lambda$doGetBean$0(AbstractBeanFactory.java:337)
+	at org.springframework.beans.factory.support.DefaultSingletonBeanRegistry.getSingleton(DefaultSingletonBeanRegistry.java:234)
+	at org.springframework.beans.factory.support.AbstractBeanFactory.doGetBean(AbstractBeanFactory.java:335)
+	at org.springframework.beans.factory.support.AbstractBeanFactory.getBean(AbstractBeanFactory.java:200)
+	at org.springframework.beans.factory.support.DefaultListableBeanFactory.preInstantiateSingletons(DefaultListableBeanFactory.java:975)
+	at org.springframework.context.support.AbstractApplicationContext.finishBeanFactoryInitialization(AbstractApplicationContext.java:971)
+	at org.springframework.context.support.AbstractApplicationContext.refresh(AbstractApplicationContext.java:625)
+	at org.springframework.boot.web.servlet.context.ServletWebServerApplicationContext.refresh(ServletWebServerApplicationContext.java:146)
+	at org.springframework.boot.SpringApplication.refresh(SpringApplication.java:754)
+	at org.springframework.boot.SpringApplication.refreshContext(SpringApplication.java:456)
+	at org.springframework.boot.SpringApplication.run(SpringApplication.java:335)
+	at org.springframework.boot.SpringApplication.run(SpringApplication.java:1363)
+	at org.springframework.boot.SpringApplication.run(SpringApplication.java:1352)
+	at com.zyx.image.ImageApplication.main(ImageApplication.java:11)
+	at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:103)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:580)
+	at org.springframework.boot.devtools.restart.RestartLauncher.run(RestartLauncher.java:50)
+Caused by: java.lang.IllegalStateException: Failed to introspect Class [com.zyx.image.controller.ApiKeyController] from ClassLoader [org.springframework.boot.devtools.restart.classloader.RestartClassLoader@2df3ec59]
+	at org.springframework.util.ReflectionUtils.getDeclaredMethods(ReflectionUtils.java:483)
+	at org.springframework.util.ReflectionUtils.doWithLocalMethods(ReflectionUtils.java:320)
+	at org.springframework.beans.factory.annotation.AutowiredAnnotationBeanPostProcessor.checkLookupMethods(AutowiredAnnotationBeanPostProcessor.java:476)
+	... 22 common frames omitted
+Caused by: java.lang.NoClassDefFoundError: Result
+	at java.base/java.lang.Class.getDeclaredMethods0(Native Method)
+	at java.base/java.lang.Class.privateGetDeclaredMethods(Class.java:3580)
+	at java.base/java.lang.Class.getDeclaredMethods(Class.java:2678)
+	at org.springframework.util.ReflectionUtils.getDeclaredMethods(ReflectionUtils.java:465)
+	... 24 common frames omitted
+Caused by: java.lang.ClassNotFoundException: Result
+	at java.base/jdk.internal.loader.BuiltinClassLoader.loadClass(BuiltinClassLoader.java:641)
+	at java.base/jdk.internal.loader.ClassLoaders$AppClassLoader.loadClass(ClassLoaders.java:188)
+	at java.base/java.lang.ClassLoader.loadClass(ClassLoader.java:526)
+	at java.base/java.lang.Class.forName0(Native Method)
+	at java.base/java.lang.Class.forName(Class.java:536)
+	at java.base/java.lang.Class.forName(Class.java:515)
+	at org.springframework.boot.devtools.restart.classloader.RestartClassLoader.loadClass(RestartClassLoader.java:121)
+	at java.base/java.lang.ClassLoader.loadClass(ClassLoader.java:526)
+	... 28 common frames omitted
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD FAILURE
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time:  4.203 s
+[INFO] Finished at: 2026-01-02T23:49:58+08:00
+[INFO] ------------------------------------------------------------------------
+[ERROR] Failed to execute goal org.springframework.boot:spring-boot-maven-plugin:3.3.5:run (default-cli) on project image: Process terminated with exit code: 1 -> [Help 1]
+[ERROR] 
+[ERROR] To see the full stack trace of the errors, re-run Maven with the -e switch.
+[ERROR] Re-run Maven using the -X switch to enable full debug logging.
+[ERROR] 
+[ERROR] For more information about the errors and possible solutions, please read the following articles:
+[ERROR] [Help 1] http://cwiki.apache.org/confluence/display/MAVEN/MojoExecutionException

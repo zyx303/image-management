@@ -1,0 +1,27 @@
+# 通用忽略
+.git
+.gitignore
+*.md
+LICENSE
+
+# 日志文件
+*.log
+logs/
+
+# 临时文件
+*.tmp
+*.temp
+.DS_Store
+Thumbs.db
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# 测试文件
+.cursor/
+terminals/
+
