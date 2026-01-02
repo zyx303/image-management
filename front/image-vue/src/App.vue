@@ -68,5 +68,14 @@ body {
 .el-card {
   border-radius: 12px;
 }
+
+/* 调整消息提示位置，避免挡住顶部菜单 */
+.el-message {
+  top: 80px !important;
+}
+
+.el-message--top {
+  top: 80px !important;
+}
 </style>
 
