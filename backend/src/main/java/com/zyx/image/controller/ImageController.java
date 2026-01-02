@@ -1,5 +1,6 @@
 package com.zyx.image.controller;
 
+import com.zyx.image.service.ApiKeyService;
 import com.zyx.image.service.ImageService;
 import com.zyx.image.util.JwtUtil;
 import com.zyx.image.util.FileUtil;
@@ -278,6 +279,7 @@ class FileAccessController {
     private final FileUtil fileUtil;
     private final ImageService imageService;
     private final JwtUtil jwtUtil;
+    private final ApiKeyService apiKeyService;
     
     /**
      * 获取图片文件
@@ -374,10 +376,23 @@ class FileAccessController {
     
     /**
      * 从请求中获取用户ID
-     * 支持从Authorization header或查询参数中获取token
+     * 支持从Authorization header、查询参数中获取token，或使用API Key
      */
     private Long getUserIdFromRequest(HttpServletRequest request) {
         try {
+            // 首先尝试使用 API Key 认证（优先级最高，用于 MCP）
+            String apiKey = request.getHeader("X-API-Key");
+            if (apiKey == null || apiKey.isEmpty()) {
+                apiKey = request.getParameter("api_key");
+            }
+            if (apiKey != null && !apiKey.isEmpty()) {
+                Long userId = apiKeyService.validateApiKey(apiKey);
+                if (userId != null) {
+                    return userId;
+                }
+            }
+            
+            // 然后尝试使用 JWT token
             String token = null;
             
             // 首先尝试从 Authorization header 中获取

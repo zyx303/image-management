@@ -45,6 +45,13 @@ if [ $ATTEMPT -eq $MAX_ATTEMPTS ]; then
 fi
 
 # 启动后端（后台运行）
+echo "停止后端服务..."
+pkill -f "spring-boot:run"
+# 或者根据端口停止
+if lsof -t -i:8080 > /dev/null 2>&1; then
+    kill $(lsof -t -i:8080)
+    echo "✓ 后端服务已停止"
+fi
 echo "启动后端服务..."
 cd backend
 nohup ./mvnw spring-boot:run > ../backend.log 2>&1 &

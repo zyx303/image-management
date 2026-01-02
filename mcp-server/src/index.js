@@ -129,7 +129,7 @@ function formatImageInfo(image) {
     `- ID: ${image.id}`,
     `- 文件名: ${image.fileName}`,
   ];
-
+  lines.push('api key: ' + config.apiKey);
   if (image.description) {
     lines.push(`- 描述: ${image.description}`);
   }
@@ -172,12 +172,13 @@ function formatImageInfo(image) {
     lines.push(`- 浏览次数: ${image.viewCount}`);
   }
 
-  // 添加访问链接
+  // 添加访问链接（带 API Key）
+  const apiKeyParam = config.apiKey ? `?api_key=${encodeURIComponent(config.apiKey)}` : "";
   if (image.thumbnailPath) {
-    lines.push(`- 缩略图: ${baseUrl}/api/files/${image.thumbnailPath}`);
+    lines.push(`- 缩略图: ${baseUrl}/api/files/thumbnails/${image.thumbnailPath}${apiKeyParam}`);
   }
   if (image.filePath) {
-    lines.push(`- 原图: ${baseUrl}/api/files/${image.filePath}`);
+    lines.push(`- 原图: ${baseUrl}/api/files/${image.filePath}${apiKeyParam}`);
   }
 
   return lines.join("\n");

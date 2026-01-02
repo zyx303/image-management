@@ -56,7 +56,7 @@ npm install
   "mcpServers": {
     "image-search": {
       "command": "node",
-      "args": ["/path/to/mcp-server/src/index.js"],
+      "args": ["path/to/mcp-server/src/index.js"],
       "env": {
         "IMAGE_API_URL": "http://localhost:8080/api",
         "IMAGE_API_KEY": "your_api_key_here"
@@ -65,6 +65,12 @@ npm install
   }
 }
 ```
+
+**⚠️ 重要提示：**
+1. 将 `path/to/mcp-server/src/index.js` 替换为实际路径
+2. 将 `your_api_key_here` 替换为在系统设置中生成的真实 API Key
+3. **修改配置后必须重启 Cursor** 才能生效
+4. 如果不设置 `IMAGE_API_KEY`，返回的图片链接将无法访问（需要认证）
 
 ## 获取 API Key
 
