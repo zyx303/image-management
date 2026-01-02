@@ -82,25 +82,40 @@
 
         <!-- 视图切换和排序 -->
         <div class="view-options">
-          <el-radio-group v-model="viewMode" size="small">
-            <el-radio-button label="grid">
-              <el-icon><Grid /></el-icon>
-              网格
-            </el-radio-button>
-            <el-radio-button label="list">
-              <el-icon><List /></el-icon>
-              列表
-            </el-radio-button>
-            <el-radio-button label="slideshow">
-              <el-icon><VideoPlay /></el-icon>
-              轮播
-            </el-radio-button>
-          </el-radio-group>
+          <div class="view-options-left">
+            <el-radio-group v-model="viewMode" size="small">
+              <el-radio-button label="grid">
+                <el-icon><Grid /></el-icon>
+                <span v-if="!isMobile">网格</span>
+              </el-radio-button>
+              <el-radio-button label="list">
+                <el-icon><List /></el-icon>
+                <span v-if="!isMobile">列表</span>
+              </el-radio-button>
+              <el-radio-button label="slideshow">
+                <el-icon><VideoPlay /></el-icon>
+                <span v-if="!isMobile">轮播</span>
+              </el-radio-button>
+            </el-radio-group>
+
+            <!-- 移动端标签筛选按钮 -->
+            <el-button
+              v-if="isMobile"
+              type="primary"
+              :icon="PictureFilled"
+              size="small"
+              @click="showTagDrawer = true"
+            >
+              标签
+              <el-badge v-if="selectedTags.length > 0" :value="selectedTags.length" class="tag-badge" />
+            </el-button>
+          </div>
 
           <el-select
             v-model="sortBy"
             placeholder="排序方式"
             class="sort-select"
+            size="small"
             @change="handleSort"
           >
             <el-option label="最新上传" value="createTime_desc" />
@@ -206,7 +221,8 @@
             :page-size="pageSize"
             :total="imageStore.total"
             :page-sizes="[10, 15, 20, 40]"
-            layout="total, sizes, prev, pager, next, jumper"
+            :layout="isMobile ? 'total, prev, pager, next, sizes' : 'total, sizes, prev, pager, next, jumper'"
+            :small="isMobile"
             @update:current-page="handlePageChange"
             @update:page-size="handleSizeChange"
           />
@@ -226,6 +242,52 @@
         <el-button type="primary" @click="handleAddTag">确定</el-button>
       </template>
     </el-dialog>
+
+    <!-- 移动端标签抽屉 -->
+    <el-drawer
+      v-model="showTagDrawer"
+      title="标签筛选"
+      direction="rtl"
+      size="80%"
+    >
+      <div class="mobile-tags-container">
+        <div class="section-header">
+          <h3 class="section-title">我的标签</h3>
+          <el-button
+            v-if="selectedTags.length > 0"
+            type="primary"
+            link
+            size="small"
+            @click="clearTagSelection"
+          >
+            清除选择
+          </el-button>
+        </div>
+        <div class="tags-list">
+          <el-tag
+            v-for="tag in tagStore.userTags"
+            :key="tag.id"
+            class="tag-item"
+            :type="selectedTags.includes(tag.id) ? 'primary' : 'info'"
+            :effect="selectedTags.includes(tag.id) ? 'dark' : 'light'"
+            closable
+            @click="handleTagSelect(tag.id)"
+            @close="handleDeleteTag(tag)"
+          >
+            {{ tag.tagName }}
+          </el-tag>
+          <el-button
+            type="primary"
+            link
+            :icon="Plus"
+            size="small"
+            @click="showAddTagDialog = true"
+          >
+            添加标签
+          </el-button>
+        </div>
+      </div>
+    </el-drawer>
   </div>
 </template>
 
@@ -262,6 +324,7 @@ const currentPage = ref(1)
 const pageSize = ref(10)
 const filteredImagesByTags = ref([]) // 缓存多标签筛选结果
 const showAddTagDialog = ref(false)
+const showTagDrawer = ref(false) // 移动端标签抽屉
 const isMobile = ref(window.innerWidth < 768)
 const sortBy = ref('createTime_desc')
 
@@ -588,6 +651,16 @@ const handleSizeChange = (size) => {
   gap: 10px;
 }
 
+.view-options-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.tag-badge {
+  margin-left: 5px;
+}
+
 .sort-select {
   width: 180px;
 }
@@ -664,10 +737,37 @@ const handleSizeChange = (size) => {
   padding: 20px;
 }
 
+.mobile-tags-container {
+  padding: 10px;
+}
+
+.mobile-tags-container .section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+}
+
+.mobile-tags-container .section-title {
+  font-size: 16px;
+  color: #333;
+  margin: 0;
+}
+
+.mobile-tags-container .tags-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
 .pagination {
   display: flex;
   justify-content: center;
   margin-top: 30px;
+}
+
+.pagination :deep(.el-pagination) {
+  flex-wrap: wrap;
 }
 
 /* 移动端适配 */
@@ -692,6 +792,33 @@ const handleSizeChange = (size) => {
 
   .image-card img {
     height: 150px;
+  }
+
+  .pagination {
+    margin-top: 20px;
+  }
+
+  .pagination :deep(.el-pagination) {
+    justify-content: center;
+  }
+
+  .pagination :deep(.el-pagination__total),
+  .pagination :deep(.el-pagination__sizes) {
+    margin-bottom: 10px;
+  }
+
+  .sort-select {
+    width: 100%;
+  }
+
+  .view-options {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .view-options-left {
+    justify-content: space-between;
+    width: 100%;
   }
 }
 </style>

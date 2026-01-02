@@ -22,9 +22,6 @@
               <el-button :icon="Edit" @click="showAdjustDialog = true">
                 调整
               </el-button>
-              <el-button :icon="MagicStick" :loading="aiAnalyzing" @click="handleAiAnalyze">
-                AI识别
-              </el-button>
               <el-button :icon="Download" @click="handleDownload">
                 下载
               </el-button>

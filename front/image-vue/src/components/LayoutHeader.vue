@@ -57,13 +57,15 @@
         </el-button>
 
         <!-- 移动端菜单按钮 -->
-        <el-button
+        <div
           v-if="isMobile"
-          :icon="Menu"
-          circle
           class="mobile-menu-btn"
           @click="showMobileMenu = true"
-        />
+        >
+          <span></span>
+          <span></span>
+          <span></span>
+        </div>
       </div>
     </div>
 
@@ -240,8 +242,25 @@ const handleCommand = async (command) => {
 }
 
 .mobile-menu-btn {
-  color: white;
-  border-color: white;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+  width: 30px;
+  height: 24px;
+  cursor: pointer;
+  padding: 4px;
+}
+
+.mobile-menu-btn span {
+  width: 100%;
+  height: 3px;
+  background-color: white;
+  border-radius: 2px;
+  transition: all 0.3s;
+}
+
+.mobile-menu-btn:hover span {
+  background-color: #ffd04b;
 }
 
 /* 移动端适配 */
