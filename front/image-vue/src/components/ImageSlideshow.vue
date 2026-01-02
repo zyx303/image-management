@@ -76,13 +76,6 @@
 
         <div class="setting-row">
           <el-form label-width="80px" size="small" class="setting-form">
-            <el-form-item label="过渡效果" class="setting-item">
-              <el-select v-model="transition" placeholder="选择过渡效果" style="width: 100%">
-                <el-option label="淡入淡出" value="fade" />
-                <el-option label="滑动" value="slide" />
-                <el-option label="缩放" value="zoom" />
-              </el-select>
-            </el-form-item>
           </el-form>
         </div>
 
@@ -130,7 +123,6 @@ const props = defineProps({
 const currentIndex = ref(0)
 const isPlaying = ref(props.autoPlay)
 const interval = ref(props.defaultInterval)
-const transition = ref('fade')
 let timer = null
 
 const currentImage = computed(() => {
