@@ -120,6 +120,25 @@
 
               <div class="mcp-config-section">
                 <h3>MCP 配置说明</h3>
+                
+                <el-alert
+                  type="success"
+                  :closable="false"
+                  style="margin-bottom: 15px"
+                >
+                  <template #title>
+                    <strong>使用步骤</strong>
+                  </template>
+                  <ol style="margin: 5px 0 0 0; padding-left: 20px; line-height: 2;">
+                    <li>下载 MCP 服务器文件包（在作业提交文件夹中mcp-server下）</li>
+                    <li>解压后在终端执行 <code>npm install</code> 安装依赖</li>
+                    <li>将下方配置添加到 AI 工具的配置文件中</li>
+                    <li>修改 <code>args</code> 中的路径为实际下载路径</li>
+                    <li>将 <code>YOUR_API_KEY</code> 替换为上方生成的 API Key</li>
+                    <li>重启 AI 工具使配置生效</li>
+                  </ol>
+                </el-alert>
+
                 <p>在您的 AI 工具配置文件中添加以下 MCP 服务器配置：</p>
                 
                 <div class="config-block">
@@ -139,6 +158,8 @@
                     <strong>注意事项</strong>
                   </template>
                   <ul style="margin: 5px 0 0 0; padding-left: 20px;">
+                    <li>MCP 服务器需要 <code>Node.js 18+</code> 环境</li>
+                    <li>请将路径修改为您本地的实际路径</li>
                     <li>请将 <code>YOUR_API_KEY</code> 替换为上方生成的 API Key</li>
                     <li>API Key 仅能访问您自己的图片</li>
                     <li>请妥善保管 API Key，不要泄露给他人</li>
@@ -227,13 +248,15 @@ const newKeyForm = reactive({
 
 // MCP 配置
 const mcpConfig = computed(() => {
+  // 动态获取后端 API 地址
+  const apiUrl = window.location.origin + '/api'
   return `{
   "mcpServers": {
     "image-search": {
       "command": "node",
-      "args": ["/home/zyx/work/bs/mcp-server/src/index.js"],
+      "args": ["/你的下载路径/mcp-server/src/index.js"],
       "env": {
-        "IMAGE_API_URL": "http://localhost:8080/api",
+        "IMAGE_API_URL": "${apiUrl}",
         "IMAGE_API_KEY": "YOUR_API_KEY"
       }
     }
