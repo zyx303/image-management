@@ -43,7 +43,7 @@ public class ApiKeyService {
         apiKey.setUserId(userId);
         apiKey.setApiKey(generateApiKey());
         apiKey.setName(name != null ? name : "默认 API Key");
-        apiKey.setStatus(1);
+        apiKey.setEnable(1);
         apiKey.setCreateTime(LocalDateTime.now());
         // 默认一年有效期
         apiKey.setExpireTime(LocalDateTime.now().plusYears(1));
@@ -77,7 +77,7 @@ public class ApiKeyService {
         
         LambdaQueryWrapper<ApiKey> wrapper = new LambdaQueryWrapper<>();
         wrapper.eq(ApiKey::getApiKey, apiKey)
-               .eq(ApiKey::getStatus, 1);
+               .eq(ApiKey::getEnable, 1);
         
         ApiKey key = apiKeyMapper.selectOne(wrapper);
         
@@ -128,7 +128,7 @@ public class ApiKeyService {
             throw new RuntimeException("API Key 不存在");
         }
         
-        apiKey.setStatus(apiKey.getStatus() == 1 ? 0 : 1);
+        apiKey.setEnable(apiKey.getEnable() == 1 ? 0 : 1);
         apiKeyMapper.updateById(apiKey);
         
         return convertToVO(apiKey, false);

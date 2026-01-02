@@ -13,7 +13,7 @@ public class ApiKeyVO {
     private Long userId;
     private String apiKey;
     private String name;
-    private Integer status;
+    private Integer enable; // 1-启用, 0-禁用
     private LocalDateTime lastUsedTime;
     private LocalDateTime createTime;
     private LocalDateTime expireTime;

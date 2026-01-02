@@ -1,6 +1,7 @@
 package com.zyx.image.entity;
 
 import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
@@ -22,8 +23,7 @@ public class ApiKey {
     private String apiKey;
     
     private String name;
-    
-    private Integer status; // 1-启用, 0-禁用
+    private Integer enable; // 1-启用, 0-禁用
     
     private LocalDateTime lastUsedTime;
     

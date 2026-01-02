@@ -90,10 +90,10 @@
                       <code class="api-key-code">{{ row.apiKey }}</code>
                     </template>
                   </el-table-column>
-                  <el-table-column prop="status" label="状态" width="80">
+                  <el-table-column prop="enable" label="状态" width="80">
                     <template #default="{ row }">
-                      <el-tag :type="row.status === 1 ? 'success' : 'danger'" size="small">
-                        {{ row.status === 1 ? '启用' : '禁用' }}
+                      <el-tag :type="row.enable === 1 ? 'success' : 'danger'" size="small">
+                        {{ row.enable === 1 ? '启用' : '禁用' }}
                       </el-tag>
                     </template>
                   </el-table-column>
@@ -106,7 +106,7 @@
                     <template #default="{ row }">
                       <el-button-group size="small">
                         <el-button @click="handleToggleKey(row)">
-                          {{ row.status === 1 ? '禁用' : '启用' }}
+                          {{ row.enable === 1 ? '禁用' : '启用' }}
                         </el-button>
                         <el-button @click="handleRegenerateKey(row)">重新生成</el-button>
                         <el-button type="danger" @click="handleDeleteKey(row)">删除</el-button>
@@ -249,7 +249,7 @@ const newKeyForm = reactive({
 // MCP 配置
 const mcpConfig = computed(() => {
   // 动态获取后端 API 地址
-  const apiUrl = window.location.origin + '/api'
+  const apiUrl = window.location.origin + ':8080/api'
   return `{
   "mcpServers": {
     "image-search": {
@@ -307,7 +307,8 @@ const handleCreateKey = async () => {
       ElMessage.error(res.message || '创建失败')
     }
   } catch (error) {
-    ElMessage.error('创建失败:',error)
+    console.error('创建API Key失败:', error)
+    ElMessage.error('创建失败: ' + (error.message || error))
   } finally {
     creatingKey.value = false
   }
@@ -330,7 +331,8 @@ const handleToggleKey = async (row) => {
       ElMessage.error(res.message || '操作失败')
     }
   } catch (error) {
-    ElMessage.error('操作失败:',error)
+    console.error('切换API Key状态失败:', error)
+    ElMessage.error('操作失败: ' + (error.message || error))
   }
 }
 
@@ -422,7 +424,8 @@ const handleSaveAiConfig = async () => {
       ElMessage.error(res.message || '保存失败')
     }
   } catch (error) {
-    ElMessage.error('保存失败:' + error)
+    console.error('保存AI配置失败:', error)
+    ElMessage.error('保存失败: ' + (error.message || error))
   } finally {
     savingAiConfig.value = false
   }
@@ -443,7 +446,8 @@ const handleTestAiConfig = async () => {
       ElMessage.error(res.data?.message || res.message || '连接测试失败')
     }
   } catch (error) {
-    ElMessage.error('连接测试失败:' + error)
+    console.error('测试AI配置失败:', error)
+    ElMessage.error('连接测试失败: ' + (error.message || error))
   } finally {
     testingAiConfig.value = false
   }
