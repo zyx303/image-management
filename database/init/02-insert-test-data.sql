@@ -9,11 +9,11 @@ INSERT INTO `user` (username, password, email, nickname, status) VALUES
 
 -- 插入常用标签
 INSERT INTO `tag` (tag_name, tag_type, use_count) VALUES
-('风景', 1, 0),
-('人物', 1, 0),
-('动物', 1, 0),
-('建筑', 1, 0),
-('美食', 1, 0),
+('风景', 2, 0),
+('人物', 2, 0),
+('动物', 2, 0),
+('建筑', 2, 0),
+('美食', 2, 0),
 ('旅行', 2, 0),
 ('生活', 2, 0),
 ('工作', 2, 0),
