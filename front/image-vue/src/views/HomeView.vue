@@ -220,9 +220,6 @@
         <el-form-item label="标签名称">
           <el-input v-model="tagForm.name" placeholder="请输入标签名称" />
         </el-form-item>
-        <el-form-item label="标签颜色">
-          <el-color-picker v-model="tagForm.color" />
-        </el-form-item>
       </el-form>
       <template #footer>
         <el-button @click="showAddTagDialog = false">取消</el-button>
@@ -269,8 +266,7 @@ const isMobile = ref(window.innerWidth < 768)
 const sortBy = ref('createTime_desc')
 
 const tagForm = reactive({
-  name: '',
-  color: '#409eff'
+  name: ''
 })
 
 // 监听窗口大小变化
@@ -411,7 +407,6 @@ const handleAddTag = async () => {
     ElMessage.success('标签创建成功')
     showAddTagDialog.value = false
     tagForm.name = ''
-    tagForm.color = '#409eff'
   } catch (error) {
     ElMessage.error('创建标签失败')
   }

@@ -22,6 +22,9 @@
               <el-button :icon="Edit" @click="showAdjustDialog = true">
                 调整
               </el-button>
+              <el-button :icon="MagicStick" :loading="aiAnalyzing" @click="handleAiAnalyze">
+                AI识别
+              </el-button>
               <el-button :icon="Download" @click="handleDownload">
                 下载
               </el-button>
@@ -67,8 +70,10 @@
                   v-for="tag in imageTags"
                   :key="tag.id"
                   closable
+                  :type="tag.tagType === 3 ? 'success' : ''"
                   @close="handleRemoveTag(tag.id)"
                 >
+                  <el-icon v-if="tag.tagType === 3" style="margin-right: 4px;"><MagicStick /></el-icon>
                   {{ tag.tagName }}
                 </el-tag>
                 <el-button
@@ -79,6 +84,16 @@
                   @click="showTagDialog = true"
                 >
                   添加标签
+                </el-button>
+                <el-button
+                  type="success"
+                  link
+                  :icon="MagicStick"
+                  size="small"
+                  :loading="aiAnalyzing"
+                  @click="handleAiAnalyze"
+                >
+                  AI识别标签
                 </el-button>
               </div>
             </div>
@@ -211,6 +226,47 @@
         <el-button type="primary" @click="handleAddTags">确定</el-button>
       </template>
     </el-dialog>
+
+    <!-- AI识别结果对话框 -->
+    <el-dialog
+      v-model="showAiResultDialog"
+      title="AI 识别结果"
+      width="500px"
+    >
+      <div v-if="aiTags.length > 0" class="ai-result-container">
+        <p class="ai-tip">以下是 AI 识别出的标签，勾选后点击"添加选中标签"可将其添加到图片：</p>
+        <div class="ai-tags-list">
+          <el-checkbox-group v-model="selectedAiTags">
+            <div v-for="tag in aiTags" :key="tag.keyword" class="ai-tag-item">
+              <el-checkbox :value="tag.keyword">
+                <div class="ai-tag-info">
+                  <span class="ai-tag-name">{{ tag.keyword }}</span>
+                  <el-tag size="small" type="info" class="ai-tag-category">{{ tag.category || '未分类' }}</el-tag>
+                  <el-progress
+                    :percentage="Math.round(tag.score * 100)"
+                    :stroke-width="6"
+                    :show-text="true"
+                    class="ai-tag-score"
+                  />
+                </div>
+              </el-checkbox>
+            </div>
+          </el-checkbox-group>
+        </div>
+      </div>
+      <el-empty v-else description="未识别到任何标签" />
+      <template #footer>
+        <el-button @click="showAiResultDialog = false">关闭</el-button>
+        <el-button
+          type="primary"
+          :disabled="selectedAiTags.length === 0"
+          :loading="addingAiTags"
+          @click="handleAddAiTags"
+        >
+          添加选中标签 ({{ selectedAiTags.length }})
+        </el-button>
+      </template>
+    </el-dialog>
   </div>
 </template>
 
@@ -224,11 +280,13 @@ import {
   Download,
   Delete,
   Plus,
-  Location
+  Location,
+  MagicStick
 } from '@element-plus/icons-vue'
 import { useImageStore } from '@/stores/image'
 import { useTagStore } from '@/stores/tag'
 import { addImageTag, removeImageTag, editImage } from '@/api/image'
+import { analyzeExistingImage, analyzeAndAddTags } from '@/api/ai'
 import { getImageUrl, formatFileSize, formatDate } from '@/utils/image'
 import Cropper from 'cropperjs'
 import 'cropperjs/dist/cropper.css'
@@ -244,7 +302,14 @@ const adjustImageRef = ref(null)
 const showCropDialog = ref(false)
 const showAdjustDialog = ref(false)
 const showTagDialog = ref(false)
+const showAiResultDialog = ref(false)
 const selectedNewTags = ref([])
+
+// AI 相关状态
+const aiAnalyzing = ref(false)
+const aiTags = ref([])
+const selectedAiTags = ref([])
+const addingAiTags = ref(false)
 
 let cropper = null
 
@@ -357,6 +422,110 @@ const handleRemoveTag = async (tagId) => {
     ElMessage.success('移除标签成功')
   } catch (error) {
     ElMessage.error('移除标签失败')
+  }
+}
+
+// AI 分析图片
+const handleAiAnalyze = async () => {
+  if (!image.value) return
+  
+  aiAnalyzing.value = true
+  aiTags.value = []
+  selectedAiTags.value = []
+  
+  try {
+    const res = await analyzeExistingImage(image.value.id)
+    if (res.code === 200 && res.data) {
+      aiTags.value = res.data
+      // 默认选中置信度大于0.5的标签
+      selectedAiTags.value = res.data
+        .filter(tag => tag.score >= 0.5)
+        .map(tag => tag.keyword)
+      showAiResultDialog.value = true
+    } else {
+      ElMessage.error(res.message || 'AI分析失败')
+    }
+  } catch (error) {
+    console.error('AI分析失败:', error)
+    ElMessage.error('AI分析失败，请检查是否已配置百度智能云API')
+  } finally {
+    aiAnalyzing.value = false
+  }
+}
+
+// 添加AI识别的标签
+const handleAddAiTags = async () => {
+  if (selectedAiTags.value.length === 0) {
+    ElMessage.warning('请选择要添加的标签')
+    return
+  }
+  
+  addingAiTags.value = true
+  
+  try {
+    let addedCount = 0
+    const addedTagNames = new Set() // 用于去重
+    
+    // 遍历用户选中的标签关键词
+    for (const keyword of selectedAiTags.value) {
+      // 找到对应的AI标签对象
+      const aiTag = aiTags.value.find(t => t.keyword === keyword)
+      if (!aiTag || !aiTag.category) continue
+      
+      // 从category中提取大类（破折号前的部分）
+      const tagName = aiTag.category.split('-')[0].trim()
+      if (!tagName || addedTagNames.has(tagName)) continue
+      
+      addedTagNames.add(tagName)
+      
+      // 查找该标签是否已存在于用户标签中
+      let tag = tagStore.userTags.find((t) => t.tagName === tagName)
+      
+      // 如果不存在，创建新标签
+      if (!tag) {
+        try {
+          await tagStore.create({ name: tagName, tagType: 3 }) // tagType: 3 表示AI标签
+          // 重新获取标签列表
+          await tagStore.fetchUserTags()
+          tag = tagStore.userTags.find((t) => t.tagName === tagName)
+        } catch (createError) {
+          console.error(`创建标签 ${tagName} 失败:`, createError)
+          continue
+        }
+      }
+      
+      if (tag) {
+        // 检查图片是否已有该标签
+        const hasTag = imageTags.value.some((t) => t.id === tag.id)
+        if (!hasTag) {
+          try {
+            await addImageTag(image.value.id, tag.id)
+            imageTags.value.push(tag)
+            addedCount++
+          } catch (addError) {
+            console.error(`添加标签 ${tagName} 失败:`, addError)
+          }
+        }
+      }
+    }
+    
+    if (addedCount > 0) {
+      ElMessage.success(`成功添加 ${addedCount} 个标签`)
+      showAiResultDialog.value = false
+      selectedAiTags.value = []
+      // 刷新图片详情以确保数据同步
+      await imageStore.fetchImageDetail(image.value.id)
+      if (image.value) {
+        imageTags.value = image.value.tags || []
+      }
+    } else {
+      ElMessage.warning('所选标签已存在或添加失败')
+    }
+  } catch (error) {
+    console.error('添加AI标签失败:', error)
+    ElMessage.error('添加标签失败')
+  } finally {
+    addingAiTags.value = false
   }
 }
 
@@ -615,6 +784,57 @@ const handleDelete = async () => {
   max-width: 100%;
   max-height: 300px;
   object-fit: contain;
+}
+
+/* AI识别结果样式 */
+.ai-result-container {
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.ai-tip {
+  color: #666;
+  font-size: 14px;
+  margin-bottom: 16px;
+}
+
+.ai-tags-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.ai-tag-item {
+  padding: 12px;
+  background: #f5f7fa;
+  border-radius: 8px;
+}
+
+.ai-tag-item :deep(.el-checkbox__label) {
+  width: 100%;
+}
+
+.ai-tag-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.ai-tag-name {
+  font-weight: 500;
+  color: #333;
+  min-width: 80px;
+}
+
+.ai-tag-category {
+  flex-shrink: 0;
+}
+
+.ai-tag-score {
+  flex: 1;
+  min-width: 100px;
+  max-width: 150px;
 }
 
 /* 移动端适配 */

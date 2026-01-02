@@ -197,6 +197,17 @@ public class ImageService {
     }
     
     /**
+     * 根据ID获取图片实体
+     */
+    public Image getImageById(Long id) {
+        Image image = imageMapper.selectById(id);
+        if (image == null || image.getStatus() == 0) {
+            return null;
+        }
+        return image;
+    }
+    
+    /**
      * 更新图片信息
      */
     @Transactional

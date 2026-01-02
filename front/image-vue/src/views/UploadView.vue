@@ -89,6 +89,18 @@
           </div>
         </div>
 
+        <!-- AI自动识别选项 -->
+        <div class="ai-option-section">
+          <el-checkbox v-model="enableAiTag" size="large">
+            <div class="ai-option-label">
+              <el-icon><MagicStick /></el-icon>
+              <span>上传后自动 AI 识别标签</span>
+              <el-tag size="small" type="success">智能</el-tag>
+            </div>
+          </el-checkbox>
+          <p class="ai-option-tip">启用后，上传完成后会自动调用百度AI识别图片内容并添加标签</p>
+        </div>
+
         <!-- 上传进度 -->
         <div v-if="uploading" class="progress-section">
           <el-progress
@@ -144,10 +156,12 @@ import {
   UploadFilled,
   Delete,
   Plus,
-  Location
+  Location,
+  MagicStick
 } from '@element-plus/icons-vue'
 import { useImageStore } from '@/stores/image'
 import { useTagStore } from '@/stores/tag'
+import { analyzeAndAddTags } from '@/api/ai'
 import ExifReader from 'exifreader'
 
 const router = useRouter()
@@ -162,6 +176,7 @@ const uploading = ref(false)
 const uploadProgress = ref(0)
 const uploadedCount = ref(0)
 const showAddTagDialog = ref(false)
+const enableAiTag = ref(false)
 
 const tagForm = reactive({
   name: '',
@@ -287,8 +302,17 @@ const handleUpload = async () => {
       
       try {
         // 上传单张图片，传递选中的标签
-        await imageStore.upload(item.file, selectedTags.value)
+        const uploadResult = await imageStore.upload(item.file, selectedTags.value)
         
+        // 如果启用了AI识别，自动添加AI标签
+        if (enableAiTag.value && uploadResult?.data?.id) {
+          try {
+            await analyzeAndAddTags(uploadResult.data.id, 0.5)
+          } catch (aiError) {
+            console.error(`AI识别 ${item.file.name} 失败:`, aiError)
+            // AI识别失败不影响上传成功
+          }
+        }
 
         uploadedCount.value++
         uploadProgress.value = Math.round((uploadedCount.value / total) * 100)
@@ -468,6 +492,28 @@ const formatFileSize = (bytes) => {
 
 .tag-item:hover {
   transform: scale(1.05);
+}
+
+.ai-option-section {
+  margin-bottom: 30px;
+  padding: 16px;
+  background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+  border-radius: 8px;
+  border: 1px solid #bae6fd;
+}
+
+.ai-option-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 15px;
+  color: #0369a1;
+}
+
+.ai-option-tip {
+  margin: 8px 0 0 24px;
+  font-size: 13px;
+  color: #666;
 }
 
 .progress-section {
