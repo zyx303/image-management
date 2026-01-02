@@ -9,13 +9,6 @@
         </template>
 
         <div class="profile-content">
-          <div class="avatar-section">
-            <el-avatar :size="100" :icon="UserFilled" />
-            <el-button type="primary" link class="change-avatar">
-              更换头像
-            </el-button>
-          </div>
-
           <el-form :model="form" label-width="100px" class="profile-form">
             <el-form-item label="用户名">
               <el-input v-model="form.username" disabled />
@@ -50,23 +43,6 @@
 
           <el-divider />
 
-          <div class="stats-section">
-            <h3>统计信息</h3>
-            <div class="stats-grid">
-              <div class="stat-item">
-                <div class="stat-value">{{ stats.imageCount }}</div>
-                <div class="stat-label">图片总数</div>
-              </div>
-              <div class="stat-item">
-                <div class="stat-value">{{ stats.totalSize }}</div>
-                <div class="stat-label">存储空间</div>
-              </div>
-              <div class="stat-item">
-                <div class="stat-value">{{ stats.tagCount }}</div>
-                <div class="stat-label">标签数量</div>
-              </div>
-            </div>
-          </div>
         </div>
       </el-card>
     </div>
@@ -111,6 +87,7 @@ import { ref, reactive, onMounted } from 'vue'
 import { ElMessage } from 'element-plus'
 import { UserFilled } from '@element-plus/icons-vue'
 import { useUserStore } from '@/stores/user'
+import { updateUserInfo, changePassword } from '@/api/auth'
 
 const userStore = useUserStore()
 
@@ -129,11 +106,6 @@ const passwordForm = reactive({
   confirmPassword: ''
 })
 
-const stats = reactive({
-  imageCount: 0,
-  totalSize: '0 MB',
-  tagCount: 0
-})
 
 onMounted(() => {
   if (userStore.userInfo) {
@@ -142,23 +114,29 @@ onMounted(() => {
     form.nickname = userStore.userInfo.nickname || ''
     form.bio = userStore.userInfo.bio || ''
   }
-  
-  // 加载统计信息
-  loadStats()
 })
 
-const loadStats = () => {
-  // 这里应该从 API 获取统计数据
-  stats.imageCount = 0
-  stats.totalSize = '0 MB'
-  stats.tagCount = 0
+
+const handleSave = async () => {
+  try {
+    const data = {
+      nickname: form.nickname,
+      bio: form.bio
+    }
+    const response = await updateUserInfo(data)
+    if (response.code === 200) {
+      // 更新用户信息
+      await userStore.fetchUserInfo()
+      ElMessage.success('保存成功')
+    } else {
+      ElMessage.error(response.message || '保存失败')
+    }
+  } catch (error) {
+    ElMessage.error('保存失败')
+  }
 }
 
-const handleSave = () => {
-  ElMessage.success('保存成功')
-}
-
-const handleChangePassword = () => {
+const handleChangePassword = async () => {
   if (!passwordForm.oldPassword || !passwordForm.newPassword) {
     ElMessage.warning('请填写所有字段')
     return
@@ -174,11 +152,24 @@ const handleChangePassword = () => {
     return
   }
 
-  ElMessage.success('密码修改成功')
-  showPasswordDialog.value = false
-  passwordForm.oldPassword = ''
-  passwordForm.newPassword = ''
-  passwordForm.confirmPassword = ''
+  try {
+    const data = {
+      oldPassword: passwordForm.oldPassword,
+      newPassword: passwordForm.newPassword
+    }
+    const response = await changePassword(data)
+    if (response.code === 200) {
+      ElMessage.success('密码修改成功')
+      showPasswordDialog.value = false
+      passwordForm.oldPassword = ''
+      passwordForm.newPassword = ''
+      passwordForm.confirmPassword = ''
+    } else {
+      ElMessage.error(response.message || '密码修改失败')
+    }
+  } catch (error) {
+    ElMessage.error('密码修改失败')
+  }
 }
 </script>
 
@@ -224,17 +215,6 @@ const handleChangePassword = () => {
   margin: 0 auto;
 }
 
-.stats-section h3 {
-  font-size: 18px;
-  color: #333;
-  margin: 20px 0;
-}
-
-.stats-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-  gap: 20px;
-}
 
 .stat-item {
   text-align: center;
@@ -258,10 +238,6 @@ const handleChangePassword = () => {
 @media (max-width: 768px) {
   .profile-view {
     padding: 20px 10px;
-  }
-
-  .stats-grid {
-    grid-template-columns: 1fr;
   }
 }
 </style>

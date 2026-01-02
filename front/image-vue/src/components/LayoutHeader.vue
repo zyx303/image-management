@@ -31,7 +31,7 @@
         <el-dropdown v-if="userStore.isLoggedIn" @command="handleCommand">
           <div class="user-info">
             <el-avatar :size="32" :icon="UserFilled" />
-            <span v-if="!isMobile" class="username">{{ userStore.username }}</span>
+            <span v-if="!isMobile" class="username">{{ userStore.userInfo.nickname }}</span>
             <el-icon><ArrowDown /></el-icon>
           </div>
           <template #dropdown>
