@@ -95,49 +95,65 @@
               </div>
             </div>
 
-            <!-- 基本信息 -->
-            <div class="info-item">
-              <label>文件大小</label>
-              <div class="info-value">{{ formatFileSize(image.fileSize) }}</div>
-            </div>
+            <!-- 基本信息区域 -->
+            <div class="info-grid">
+              <!-- 左侧：基本信息 -->
+              <div class="info-column">
+                <div class="info-item">
+                  <label>文件大小</label>
+                  <div class="info-value">{{ formatFileSize(image.fileSize) }}</div>
+                </div>
 
-            <div class="info-item">
-              <label>分辨率</label>
-              <div class="info-value">
-                {{ image.width }} × {{ image.height }}
-              </div>
-            </div>
+                <div class="info-item">
+                  <label>分辨率</label>
+                  <div class="info-value">
+                    {{ image.width }} × {{ image.height }}
+                  </div>
+                </div>
 
-            <div class="info-item">
-              <label>格式</label>
-              <div class="info-value">{{ image.fileType }}</div>
-            </div>
+                <div class="info-item">
+                  <label>格式</label>
+                  <div class="info-value">{{ image.fileType }}</div>
+                </div>
 
-            <div class="info-item">
-              <label>上传时间</label>
-              <div class="info-value">{{ formatDate(image.uploadTime) }}</div>
-            </div>
+                <div class="info-item">
+                  <label>上传时间</label>
+                  <div class="info-value">{{ formatDate(image.uploadTime) }}</div>
+                </div>
+              </div>
 
-            <!-- EXIF 信息 -->
-            <div v-if="image.exifInfo" class="exif-section">
-              <h4>EXIF 信息</h4>
-              <div v-if="image.exifInfo.DateTime" class="info-item">
-                <label>拍摄时间</label>
-                <div class="info-value">{{ image.exifInfo.DateTime }}</div>
-              </div>
-              <div v-if="image.exifInfo.Make" class="info-item">
-                <label>相机品牌</label>
-                <div class="info-value">{{ image.exifInfo.Make }}</div>
-              </div>
-              <div v-if="image.exifInfo.Model" class="info-item">
-                <label>相机型号</label>
-                <div class="info-value">{{ image.exifInfo.Model }}</div>
-              </div>
-              <div v-if="image.exifInfo.GPSLatitude" class="info-item">
-                <label>拍摄地点</label>
-                <div class="info-value">
-                  <el-icon><Location /></el-icon>
-                  {{ image.exifInfo.GPSLatitude }}, {{ image.exifInfo.GPSLongitude }}
+              <!-- 右侧：EXIF 信息 -->
+              <div v-if="image.exifInfo" class="info-column exif-column">
+                <div v-if="image.exifInfo.DateTime" class="info-item">
+                  <label>拍摄时间</label>
+                  <div class="info-value">{{ image.exifInfo.DateTime }}</div>
+                </div>
+                <div v-if="image.exifInfo.Make" class="info-item">
+                  <label>相机品牌</label>
+                  <div class="info-value">{{ image.exifInfo.Make }}</div>
+                </div>
+                <div v-if="image.exifInfo.Model" class="info-item">
+                  <label>相机型号</label>
+                  <div class="info-value">{{ image.exifInfo.Model }}</div>
+                </div>
+                <div v-if="image.exifInfo.FocalLength" class="info-item">
+                  <label>焦距</label>
+                  <div class="info-value">{{ image.exifInfo.FocalLength }}</div>
+                </div>
+                <div v-if="image.exifInfo.Aperture" class="info-item">
+                  <label>光圈</label>
+                  <div class="info-value">{{ image.exifInfo.Aperture }}</div>
+                </div>
+                <div v-if="image.exifInfo.ISO" class="info-item">
+                  <label>ISO</label>
+                  <div class="info-value">{{ image.exifInfo.ISO }}</div>
+                </div>
+                <div v-if="image.exifInfo.GPSLatitude" class="info-item">
+                  <label>拍摄地点</label>
+                  <div class="info-value">
+                    <el-icon><Location /></el-icon>
+                    {{ image.exifInfo.GPSLatitude }}, {{ image.exifInfo.GPSLongitude }}
+                  </div>
                 </div>
               </div>
             </div>
@@ -709,6 +725,51 @@ const handleDelete = async () => {
   margin: 0 0 20px 0;
 }
 
+.info-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+
+.info-column {
+  display: flex;
+  flex-direction: column;
+}
+
+.exif-column {
+  padding-left: 20px;
+  border-left: 1px solid #e4e7ed;
+  max-height: 250px;
+  overflow-y: auto;
+  padding-right: 10px;
+  scrollbar-gutter: stable;
+}
+
+/* Webkit 浏览器滚动条样式 (Chrome, Safari, Edge) */
+.exif-column::-webkit-scrollbar {
+  width: 6px;
+}
+
+.exif-column::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 3px;
+}
+
+.exif-column::-webkit-scrollbar-thumb {
+  background: #c1c1c1;
+  border-radius: 3px;
+}
+
+.exif-column::-webkit-scrollbar-thumb:hover {
+  background: #a8a8a8;
+}
+
+/* Firefox 浏览器滚动条样式 */
+.exif-column {
+  scrollbar-width: thin;
+  scrollbar-color: #c1c1c1 #f1f1f1;
+}
+
 .info-item {
   margin-bottom: 20px;
 }
@@ -730,18 +791,6 @@ const handleDelete = async () => {
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
-}
-
-.exif-section {
-  margin-top: 20px;
-  padding-top: 20px;
-  border-top: 1px solid #e4e7ed;
-}
-
-.exif-section h4 {
-  font-size: 16px;
-  color: #333;
-  margin: 0 0 15px 0;
 }
 
 .crop-container {
@@ -865,6 +914,18 @@ const handleDelete = async () => {
 
   .info-card {
     padding: 15px;
+  }
+
+  .info-grid {
+    grid-template-columns: 1fr;
+    gap: 15px;
+  }
+
+  .exif-column {
+    padding-left: 0;
+    border-left: none;
+    padding-top: 15px;
+    border-top: 1px solid #e4e7ed;
   }
 }
 </style>

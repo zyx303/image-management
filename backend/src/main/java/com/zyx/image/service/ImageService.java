@@ -107,6 +107,9 @@ public class ImageService {
         if (exifData.containsKey("iso")) {
             image.setIso((String) exifData.get("iso"));
         }
+        if (exifData.containsKey("location")) {
+            image.setLocation((String) exifData.get("location"));
+        }
         
         imageMapper.insert(image);
 

@@ -2,10 +2,10 @@ package com.zyx.image.util;
 
 import com.drew.imaging.ImageMetadataReader;
 import com.drew.imaging.ImageProcessingException;
-import com.drew.metadata.Directory;
 import com.drew.metadata.Metadata;
 import com.drew.metadata.exif.ExifIFD0Directory;
 import com.drew.metadata.exif.ExifSubIFDDirectory;
+import com.drew.metadata.exif.GpsDirectory;
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -66,6 +66,21 @@ public class ExifUtil {
                 }
                 if (exifDirectory.containsTag(ExifSubIFDDirectory.TAG_ISO_EQUIVALENT)) {
                     exifData.put("iso", exifDirectory.getString(ExifSubIFDDirectory.TAG_ISO_EQUIVALENT));
+                }
+            }
+            
+            // GPS 位置信息
+            GpsDirectory gpsDirectory = metadata.getFirstDirectoryOfType(GpsDirectory.class);
+            if (gpsDirectory != null) {
+                // 获取纬度
+                if (gpsDirectory.containsTag(GpsDirectory.TAG_LATITUDE)) {
+                    com.drew.lang.GeoLocation geoLocation = gpsDirectory.getGeoLocation();
+                    if (geoLocation != null) {
+                        double latitude = geoLocation.getLatitude();
+                        double longitude = geoLocation.getLongitude();
+                        // 存储为逗号分隔的字符串: "纬度,经度"
+                        exifData.put("location", String.format("%.6f,%.6f", latitude, longitude));
+                    }
                 }
             }
             
