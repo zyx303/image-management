@@ -13,6 +13,8 @@ CREATE TABLE IF NOT EXISTS `user` (
   `avatar` VARCHAR(255) COMMENT '头像URL',
   `phone` VARCHAR(20) COMMENT '手机号',
   `status` TINYINT DEFAULT 1 COMMENT '状态:1-正常,0-禁用',
+  `baidu_api_key` VARCHAR(100) COMMENT '百度智能云API Key',
+  `baidu_secret_key` VARCHAR(100) COMMENT '百度智能云Secret Key',
   `create_time` DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
   `update_time` DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
   INDEX idx_username (username),

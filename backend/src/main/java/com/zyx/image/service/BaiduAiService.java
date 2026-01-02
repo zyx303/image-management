@@ -4,6 +4,8 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.zyx.image.config.BaiduAiConfig;
 import com.zyx.image.dto.BaiduTagResult;
+import com.zyx.image.entity.User;
+import com.zyx.image.mapper.UserMapper;
 import com.zyx.image.vo.AiTagVO;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -34,38 +36,60 @@ public class BaiduAiService {
     private final BaiduAiConfig baiduAiConfig;
     private final StringRedisTemplate stringRedisTemplate;
     private final ObjectMapper objectMapper;
+    private final UserMapper userMapper;
     
-    private static final String ACCESS_TOKEN_KEY = "baidu:ai:access_token";
+    private static final String ACCESS_TOKEN_KEY_PREFIX = "baidu:ai:access_token:user:";
     private static final long TOKEN_EXPIRE_SECONDS = 29 * 24 * 60 * 60; // 29天
+    
+    /**
+     * 获取用户的百度AI配置
+     */
+    private String[] getUserAiConfig(Long userId) {
+        if (userId == null) {
+            return null;
+        }
+        User user = userMapper.selectById(userId);
+        if (user == null || user.getBaiduApiKey() == null || user.getBaiduSecretKey() == null 
+                || user.getBaiduApiKey().isEmpty() || user.getBaiduSecretKey().isEmpty()) {
+            return null;
+        }
+        return new String[]{user.getBaiduApiKey(), user.getBaiduSecretKey()};
+    }
     
     /**
      * 获取Access Token
      * 优先从Redis缓存获取，缓存不存在则请求新的token
      */
-    public String getAccessToken() {
+    public String getAccessToken(Long userId) {
+        String[] config = getUserAiConfig(userId);
+        if (config == null) {
+            throw new RuntimeException("请先配置百度智能云 API Key 和 Secret Key");
+        }
+        
+        String cacheKey = ACCESS_TOKEN_KEY_PREFIX + userId;
         // 从Redis获取缓存的token
-        String cachedToken = stringRedisTemplate.opsForValue().get(ACCESS_TOKEN_KEY);
+        String cachedToken = stringRedisTemplate.opsForValue().get(cacheKey);
         if (cachedToken != null && !cachedToken.isEmpty()) {
-            log.debug("从缓存获取百度AI Access Token");
+            log.debug("从缓存获取百度AI Access Token，用户ID: {}", userId);
             return cachedToken;
         }
         
         // 请求新的token
-        log.info("请求新的百度AI Access Token");
-        return refreshAccessToken();
+        log.info("请求新的百度AI Access Token，用户ID: {}", userId);
+        return refreshAccessToken(userId, config[0], config[1]);
     }
     
     /**
      * 刷新Access Token
      */
-    public String refreshAccessToken() {
+    public String refreshAccessToken(Long userId, String apiKey, String secretKey) {
         try {
             RestTemplate restTemplate = new RestTemplate();
             
             String url = String.format("%s?grant_type=client_credentials&client_id=%s&client_secret=%s",
                     baiduAiConfig.getTokenUrl(),
-                    baiduAiConfig.getApiKey(),
-                    baiduAiConfig.getSecretKey());
+                    apiKey,
+                    secretKey);
             
             ResponseEntity<String> response = restTemplate.getForEntity(url, String.class);
             
@@ -85,10 +109,11 @@ public class BaiduAiService {
                 long expiresIn = jsonNode.get("expires_in").asLong();
                 
                 // 缓存到Redis，设置过期时间比实际过期时间短一点
+                String cacheKey = ACCESS_TOKEN_KEY_PREFIX + userId;
                 long cacheExpire = Math.min(expiresIn - 3600, TOKEN_EXPIRE_SECONDS);
-                stringRedisTemplate.opsForValue().set(ACCESS_TOKEN_KEY, accessToken, cacheExpire, TimeUnit.SECONDS);
+                stringRedisTemplate.opsForValue().set(cacheKey, accessToken, cacheExpire, TimeUnit.SECONDS);
                 
-                log.info("成功获取百度AI Access Token，有效期: {}秒", expiresIn);
+                log.info("成功获取百度AI Access Token，用户ID: {}，有效期: {}秒", userId, expiresIn);
                 return accessToken;
             }
             
@@ -100,12 +125,38 @@ public class BaiduAiService {
     }
     
     /**
+     * 测试百度AI配置是否正确
+     */
+    public boolean testConfig(String apiKey, String secretKey) {
+        try {
+            RestTemplate restTemplate = new RestTemplate();
+            
+            String url = String.format("%s?grant_type=client_credentials&client_id=%s&client_secret=%s",
+                    baiduAiConfig.getTokenUrl(),
+                    apiKey,
+                    secretKey);
+            
+            ResponseEntity<String> response = restTemplate.getForEntity(url, String.class);
+            
+            if (response.getStatusCode() == HttpStatus.OK && response.getBody() != null) {
+                JsonNode jsonNode = objectMapper.readTree(response.getBody());
+                return !jsonNode.has("error") && jsonNode.has("access_token");
+            }
+            return false;
+        } catch (Exception e) {
+            log.error("测试百度AI配置异常", e);
+            return false;
+        }
+    }
+    
+    /**
      * 通用物体和场景识别
      * @param imagePath 图片文件路径
+     * @param userId 用户ID
      * @return 识别结果列表
      */
-    public List<AiTagVO> analyzeImage(String imagePath) throws IOException {
-        log.info("开始AI分析图片: {}", imagePath);
+    public List<AiTagVO> analyzeImage(String imagePath, Long userId) throws IOException {
+        log.info("开始AI分析图片: {}, 用户ID: {}", imagePath, userId);
         
         // 读取图片文件并转换为Base64
         Path path = Paths.get(imagePath);
@@ -126,16 +177,17 @@ public class BaiduAiService {
         String base64Image = Base64.getEncoder().encodeToString(imageBytes);
         log.debug("Base64编码完成，长度: {}", base64Image.length());
         
-        return analyzeImageByBase64(base64Image);
+        return analyzeImageByBase64(base64Image, userId);
     }
     
     /**
      * 通用物体和场景识别（Base64图片）
      * @param base64Image Base64编码的图片数据（可以包含或不包含data:image/xxx;base64,前缀）
+     * @param userId 用户ID
      * @return 识别结果列表
      */
-    public List<AiTagVO> analyzeImageByBase64(String base64Image) {
-        log.info("开始AI分析Base64图片");
+    public List<AiTagVO> analyzeImageByBase64(String base64Image, Long userId) {
+        log.info("开始AI分析Base64图片，用户ID: {}", userId);
         
         try {
             // 移除可能存在的data URI前缀
@@ -159,7 +211,7 @@ public class BaiduAiService {
                 throw new RuntimeException("图片太大，请使用小于6MB的图片");
             }
             
-            String accessToken = getAccessToken();
+            String accessToken = getAccessToken(userId);
             
             RestTemplate restTemplate = new RestTemplate();
             
@@ -220,13 +272,14 @@ public class BaiduAiService {
     /**
      * 通用物体和场景识别（URL方式）
      * @param imageUrl 图片URL
+     * @param userId 用户ID
      * @return 识别结果列表
      */
-    public List<AiTagVO> analyzeImageByUrl(String imageUrl) {
-        log.info("开始AI分析图片URL: {}", imageUrl);
+    public List<AiTagVO> analyzeImageByUrl(String imageUrl, Long userId) {
+        log.info("开始AI分析图片URL: {}, 用户ID: {}", imageUrl, userId);
         
         try {
-            String accessToken = getAccessToken();
+            String accessToken = getAccessToken(userId);
             
             RestTemplate restTemplate = new RestTemplate();
             
@@ -281,12 +334,10 @@ public class BaiduAiService {
     }
     
     /**
-     * 检查服务是否可用（配置是否正确）
+     * 检查服务是否可用（用户配置是否正确）
      */
-    public boolean isServiceAvailable() {
-        return baiduAiConfig.getApiKey() != null 
-                && !baiduAiConfig.getApiKey().isEmpty()
-                && baiduAiConfig.getSecretKey() != null 
-                && !baiduAiConfig.getSecretKey().isEmpty();
+    public boolean isServiceAvailable(Long userId) {
+        String[] config = getUserAiConfig(userId);
+        return config != null;
     }
 }

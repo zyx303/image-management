@@ -9,61 +9,57 @@
         </template>
 
         <el-tabs v-model="activeTab" class="settings-tabs">
-          <el-tab-pane label="显示设置" name="display">
-            <el-form label-width="120px">
-              <el-form-item label="每页显示数量">
-                <el-select v-model="settings.pageSize" placeholder="选择显示数量">
-                  <el-option label="12 张" :value="12" />
-                  <el-option label="24 张" :value="24" />
-                  <el-option label="48 张" :value="48" />
-                  <el-option label="96 张" :value="96" />
-                </el-select>
-              </el-form-item>
+          <el-tab-pane label="AI 识图" name="ai">
+            <div class="ai-section">
+              <el-alert
+                title="百度智能云 AI 识图配置"
+                type="info"
+                :closable="false"
+                show-icon
+                style="margin-bottom: 20px"
+              >
+                <p>配置百度智能云的 API Key 和 Secret Key，即可使用 AI 自动识别图片内容并生成标签。</p>
+                <p style="margin-top: 8px;">
+                  <a href="https://console.bce.baidu.com/ai/#/ai/imagerecognition/overview/index" target="_blank">前往百度智能云控制台获取 →</a>
+                </p>
+              </el-alert>
 
-              <el-form-item label="默认排序">
-                <el-select v-model="settings.defaultSort" placeholder="选择排序方式">
-                  <el-option label="最新上传" value="createTime_desc" />
-                  <el-option label="最早上传" value="createTime_asc" />
-                  <el-option label="文件名 A-Z" value="fileName_asc" />
-                  <el-option label="文件名 Z-A" value="fileName_desc" />
-                </el-select>
-              </el-form-item>
+              <el-form :model="aiConfig" label-width="120px">
+                <el-form-item label="API Key">
+                  <el-input 
+                    v-model="aiConfig.apiKey" 
+                    placeholder="请输入百度智能云 API Key"
+                    show-password
+                  />
+                </el-form-item>
 
-              <el-form-item label="默认视图">
-                <el-radio-group v-model="settings.defaultView">
-                  <el-radio label="grid">网格视图</el-radio>
-                  <el-radio label="list">列表视图</el-radio>
-                </el-radio-group>
-              </el-form-item>
-            </el-form>
-          </el-tab-pane>
+                <el-form-item label="Secret Key">
+                  <el-input 
+                    v-model="aiConfig.secretKey" 
+                    placeholder="请输入百度智能云 Secret Key"
+                    show-password
+                  />
+                </el-form-item>
 
-          <el-tab-pane label="上传设置" name="upload">
-            <el-form label-width="120px">
-              <el-form-item label="自动添加标签">
-                <el-switch v-model="settings.autoAddTags" />
-              </el-form-item>
+                <el-form-item>
+                  <el-button type="primary" @click="handleSaveAiConfig" :loading="savingAiConfig">
+                    保存配置
+                  </el-button>
+                  <el-button @click="handleTestAiConfig" :loading="testingAiConfig">
+                    测试连接
+                  </el-button>
+                </el-form-item>
+              </el-form>
 
-              <el-form-item label="自动提取EXIF">
-                <el-switch v-model="settings.autoExtractExif" />
-              </el-form-item>
+              <el-divider />
 
-              <el-form-item label="上传后跳转">
-                <el-switch v-model="settings.redirectAfterUpload" />
-              </el-form-item>
-            </el-form>
-          </el-tab-pane>
-
-          <el-tab-pane label="隐私设置" name="privacy">
-            <el-form label-width="120px">
-              <el-form-item label="图片默认公开">
-                <el-switch v-model="settings.defaultPublic" />
-              </el-form-item>
-
-              <el-form-item label="允许下载">
-                <el-switch v-model="settings.allowDownload" />
-              </el-form-item>
-            </el-form>
+              <div class="ai-status">
+                <h4>服务状态</h4>
+                <el-tag :type="aiServiceAvailable ? 'success' : 'danger'" size="large">
+                  {{ aiServiceAvailable ? 'AI 服务已配置' : 'AI 服务未配置' }}
+                </el-tag>
+              </div>
+            </div>
           </el-tab-pane>
 
           <el-tab-pane label="MCP 接口" name="mcp">
@@ -164,11 +160,6 @@
             </div>
           </el-tab-pane>
         </el-tabs>
-
-        <div class="settings-actions">
-          <el-button type="primary" @click="handleSave">保存设置</el-button>
-          <el-button @click="handleReset">重置</el-button>
-        </div>
       </el-card>
     </div>
 
@@ -210,19 +201,18 @@ import { ref, reactive, onMounted, computed } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { Plus } from '@element-plus/icons-vue'
 import { getApiKeys, createApiKey, deleteApiKey, toggleApiKey, regenerateApiKey } from '@/api/apiKey'
+import { checkAiStatus, getAiConfig, saveAiConfig, testAiConfig } from '@/api/ai'
 
-const activeTab = ref('display')
+const activeTab = ref('ai')
 
-const settings = reactive({
-  pageSize: 24,
-  defaultSort: 'createTime_desc',
-  defaultView: 'grid',
-  autoAddTags: true,
-  autoExtractExif: true,
-  redirectAfterUpload: false,
-  defaultPublic: false,
-  allowDownload: true
+// AI 配置相关
+const aiConfig = reactive({
+  apiKey: '',
+  secretKey: ''
 })
+const aiServiceAvailable = ref(false)
+const savingAiConfig = ref(false)
+const testingAiConfig = ref(false)
 
 // API Keys 相关
 const apiKeys = ref([])
@@ -372,26 +362,74 @@ const copyConfig = () => {
   ElMessage.success('配置已复制到剪贴板')
 }
 
-const handleSave = () => {
-  localStorage.setItem('userSettings', JSON.stringify(settings))
-  ElMessage.success('设置已保存')
+// 加载 AI 配置
+const loadAiConfig = async () => {
+  try {
+    const res = await getAiConfig()
+    if (res.code === 200 && res.data) {
+      aiConfig.apiKey = res.data.apiKey || ''
+      aiConfig.secretKey = res.data.secretKey || ''
+    }
+  } catch (error) {
+    console.error('加载 AI 配置失败:', error)
+  }
 }
 
-const handleReset = () => {
-  settings.pageSize = 24
-  settings.defaultSort = 'createTime_desc'
-  settings.defaultView = 'grid'
-  settings.autoAddTags = true
-  settings.autoExtractExif = true
-  settings.redirectAfterUpload = false
-  settings.defaultPublic = false
-  settings.allowDownload = true
-  ElMessage.info('设置已重置')
+// 加载 AI 服务状态
+const loadAiStatus = async () => {
+  try {
+    const res = await checkAiStatus()
+    if (res.code === 200) {
+      aiServiceAvailable.value = res.data.available
+    }
+  } catch (error) {
+    console.error('检查 AI 服务状态失败:', error)
+  }
+}
+
+// 保存 AI 配置
+const handleSaveAiConfig = async () => {
+  savingAiConfig.value = true
+  try {
+    const res = await saveAiConfig(aiConfig)
+    if (res.code === 200) {
+      ElMessage.success('AI 配置保存成功')
+      loadAiStatus()
+    } else {
+      ElMessage.error(res.message || '保存失败')
+    }
+  } catch (error) {
+    ElMessage.error('保存失败')
+  } finally {
+    savingAiConfig.value = false
+  }
+}
+
+// 测试 AI 配置
+const handleTestAiConfig = async () => {
+  if (!aiConfig.apiKey || !aiConfig.secretKey) {
+    ElMessage.warning('请先填写 API Key 和 Secret Key')
+    return
+  }
+  testingAiConfig.value = true
+  try {
+    const res = await testAiConfig(aiConfig)
+    if (res.code === 200 && res.data.success) {
+      ElMessage.success('连接测试成功！')
+    } else {
+      ElMessage.error(res.data?.message || res.message || '连接测试失败')
+    }
+  } catch (error) {
+    ElMessage.error('连接测试失败')
+  } finally {
+    testingAiConfig.value = false
+  }
 }
 
 onMounted(() => {
-  // 当切换到 MCP 标签时加载 API Keys
   loadApiKeys()
+  loadAiConfig()
+  loadAiStatus()
 })
 </script>
 
@@ -437,12 +475,19 @@ onMounted(() => {
   line-height: 1.8;
 }
 
-.settings-actions {
-  padding: 20px;
-  border-top: 1px solid #e4e7ed;
-  display: flex;
-  justify-content: center;
-  gap: 15px;
+/* AI 识图设置样式 */
+.ai-section {
+  padding: 10px;
+}
+
+.ai-section h4 {
+  font-size: 14px;
+  color: #333;
+  margin: 0 0 10px 0;
+}
+
+.ai-status {
+  margin-top: 10px;
 }
 
 /* MCP 设置样式 */

@@ -11,6 +11,41 @@ export function checkAiStatus() {
 }
 
 /**
+ * 获取AI配置
+ */
+export function getAiConfig() {
+  return request({
+    url: '/ai/config',
+    method: 'get'
+  })
+}
+
+/**
+ * 保存AI配置
+ * @param {Object} config { apiKey, secretKey }
+ */
+export function saveAiConfig(config) {
+  return request({
+    url: '/ai/config',
+    method: 'post',
+    data: config
+  })
+}
+
+/**
+ * 测试AI配置连接
+ * @param {Object} config { apiKey, secretKey }
+ */
+export function testAiConfig(config) {
+  return request({
+    url: '/ai/config/test',
+    method: 'post',
+    data: config,
+    timeout: 30000
+  })
+}
+
+/**
  * 分析上传的图片
  * @param {File} file 图片文件
  */
