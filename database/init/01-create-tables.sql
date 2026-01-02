@@ -109,3 +109,19 @@ CREATE TABLE IF NOT EXISTS `album_image` (
   FOREIGN KEY (image_id) REFERENCES image(id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='相册图片关联表';
 
+-- 7. API Key 表 (用于 MCP 接口认证)
+CREATE TABLE IF NOT EXISTS `api_key` (
+  `id` BIGINT PRIMARY KEY AUTO_INCREMENT COMMENT 'API Key ID',
+  `user_id` BIGINT NOT NULL COMMENT '用户ID',
+  `api_key` VARCHAR(100) UNIQUE NOT NULL COMMENT 'API Key',
+  `name` VARCHAR(100) COMMENT 'API Key 名称',
+  `status` TINYINT DEFAULT 1 COMMENT '状态:1-启用,0-禁用',
+  `last_used_time` DATETIME COMMENT '最后使用时间',
+  `create_time` DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  `expire_time` DATETIME COMMENT '过期时间',
+  INDEX idx_user_id (user_id),
+  INDEX idx_api_key (api_key),
+  INDEX idx_status (status),
+  FOREIGN KEY (user_id) REFERENCES user(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='API Key表';
+

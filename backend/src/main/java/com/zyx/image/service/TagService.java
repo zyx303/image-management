@@ -127,6 +127,13 @@ public class TagService {
      * 根据标签获取图片
      */
     public PageResult<ImageVO> getImagesByTag(Long tagId, Long current, Long size) {
+        return getImagesByTagAndUser(tagId, null, current, size);
+    }
+    
+    /**
+     * 根据标签和用户获取图片
+     */
+    public PageResult<ImageVO> getImagesByTagAndUser(Long tagId, Long userId, Long current, Long size) {
         // 查询标签关联的图片ID
         LambdaQueryWrapper<ImageTag> wrapper = new LambdaQueryWrapper<>();
         wrapper.eq(ImageTag::getTagId, tagId);
@@ -144,8 +151,14 @@ public class TagService {
         Page<Image> page = new Page<>(current, size);
         LambdaQueryWrapper<Image> imageWrapper = new LambdaQueryWrapper<>();
         imageWrapper.in(Image::getId, imageIds)
-                   .eq(Image::getStatus, 1)
-                   .orderByDesc(Image::getUploadTime);
+                   .eq(Image::getStatus, 1);
+        
+        // 如果指定了用户ID，则只查询该用户的图片
+        if (userId != null) {
+            imageWrapper.eq(Image::getUserId, userId);
+        }
+        
+        imageWrapper.orderByDesc(Image::getUploadTime);
 
         IPage<Image> imagePage = imageMapper.selectPage(page, imageWrapper);
 

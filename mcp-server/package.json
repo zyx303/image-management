@@ -1,0 +1,27 @@
+{
+  "name": "image-mcp-server",
+  "version": "1.0.0",
+  "description": "MCP Server for image search and retrieval",
+  "type": "module",
+  "main": "src/index.js",
+  "bin": {
+    "image-mcp-server": "./src/index.js"
+  },
+  "scripts": {
+    "start": "node src/index.js",
+    "dev": "node --watch src/index.js"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.0.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "keywords": [
+    "mcp",
+    "model-context-protocol",
+    "image-search"
+  ],
+  "author": "",
+  "license": "MIT"
+}
