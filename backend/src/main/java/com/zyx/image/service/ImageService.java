@@ -113,6 +113,44 @@ public class ImageService {
         
         imageMapper.insert(image);
 
+        // 自动添加相机标签（如果有相机信息）
+        String cameraTagName = null;
+        if (exifData.containsKey("device") && exifData.get("device") != null) {
+            // 优先使用相机品牌
+            cameraTagName = ((String) exifData.get("device")).trim();
+        } 
+        if (cameraTagName != null && !cameraTagName.isEmpty()) {
+            try {
+                // 查找或创建相机标签
+                Tag cameraTag = tagMapper.selectByName(cameraTagName);
+                if (cameraTag == null) {
+                    // 创建新标签
+                    cameraTag = new Tag();
+                    cameraTag.setTagName(cameraTagName);
+                    cameraTag.setTagType(1); // 1-自动标签（从EXIF提取）
+                    cameraTag.setUseCount(0);
+                    tagMapper.insert(cameraTag);
+                }
+                
+                // 检查是否已关联
+                ImageTag existing = imageTagMapper.selectByImageIdAndTagId(image.getId(), cameraTag.getId());
+                if (existing == null) {
+                    // 添加关联
+                    ImageTag imageTag = new ImageTag();
+                    imageTag.setImageId(image.getId());
+                    imageTag.setTagId(cameraTag.getId());
+                    imageTagMapper.insert(imageTag);
+                    
+                    // 更新使用次数
+                    cameraTag.setUseCount(cameraTag.getUseCount() + 1);
+                    tagMapper.updateById(cameraTag);
+                }
+            } catch (Exception e) {
+                // 如果添加相机标签失败，不影响图片上传，只记录日志
+                // 可以在这里添加日志记录
+            }
+        }
+
         // 添加标签关联
         if (tagIds != null && !tagIds.isEmpty()) {
             for (Long tagId : tagIds) {

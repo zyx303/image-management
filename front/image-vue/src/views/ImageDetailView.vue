@@ -67,9 +67,10 @@
                   v-for="tag in imageTags"
                   :key="tag.id"
                   closable
-                  :type="tag.tagType === 3 ? 'success' : ''"
+                  :type="tag.tagType === 3 ? 'success' : tag.tagType === 1 ? 'info' : ''"
                   @close="handleRemoveTag(tag.id)"
                 >
+                  <el-icon v-if="tag.tagType === 1" style="margin-right: 4px;"><Camera /></el-icon>
                   <el-icon v-if="tag.tagType === 3" style="margin-right: 4px;"><MagicStick /></el-icon>
                   {{ tag.tagName }}
                 </el-tag>
@@ -294,7 +295,8 @@ import {
   Delete,
   Plus,
   Location,
-  MagicStick
+  MagicStick,
+  Camera
 } from '@element-plus/icons-vue'
 import { useImageStore } from '@/stores/image'
 import { useTagStore } from '@/stores/tag'
