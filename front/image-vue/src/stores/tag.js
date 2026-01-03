@@ -2,6 +2,7 @@ import { defineStore } from 'pinia'
 import { ref } from 'vue'
 import {
   getAllTags,
+  getDefaultTags,
   getUserTags,
   createTag,
   updateTag,
@@ -14,9 +15,10 @@ export const useTagStore = defineStore('tag', () => {
   // 状态
   const tags = ref([])
   const userTags = ref([])
+  const defaultTags = ref([])
   const loading = ref(false)
 
-  // 获取所有标签
+  // 获取所有标签（用户可见的：用户自己的 + 系统默认）
   async function fetchAllTags() {
     loading.value = true
     try {
@@ -25,6 +27,21 @@ export const useTagStore = defineStore('tag', () => {
       return res
     } catch (error) {
       console.error('Fetch all tags failed:', error)
+      throw error
+    } finally {
+      loading.value = false
+    }
+  }
+
+  // 获取系统默认标签
+  async function fetchDefaultTags() {
+    loading.value = true
+    try {
+      const res = await getDefaultTags()
+      defaultTags.value = res.data || []
+      return res
+    } catch (error) {
+      console.error('Fetch default tags failed:', error)
       throw error
     } finally {
       loading.value = false
@@ -128,8 +145,10 @@ export const useTagStore = defineStore('tag', () => {
   return {
     tags,
     userTags,
+    defaultTags,
     loading,
     fetchAllTags,
+    fetchDefaultTags,
     fetchUserTags,
     create,
     update,

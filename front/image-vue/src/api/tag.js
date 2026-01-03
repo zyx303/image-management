@@ -1,11 +1,21 @@
 import request from '@/utils/request'
 
 /**
- * 获取所有标签
+ * 获取所有标签（用户可见的：用户自己的 + 系统默认）
  */
 export function getAllTags() {
   return request({
     url: '/tags',
+    method: 'get'
+  })
+}
+
+/**
+ * 获取系统默认标签
+ */
+export function getDefaultTags() {
+  return request({
+    url: '/tags/default',
     method: 'get'
   })
 }

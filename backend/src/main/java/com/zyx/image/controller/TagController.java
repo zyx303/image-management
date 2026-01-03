@@ -25,10 +25,24 @@ public class TagController {
     private final JwtUtil jwtUtil;
     
     /**
-     * 获取所有标签
+     * 获取所有标签（用户可见的：用户自己的 + 系统默认）
      */
     @GetMapping
-    public Result<List<TagVO>> getAllTags() {
+    public Result<List<TagVO>> getAllTags(HttpServletRequest request) {
+        try {
+            Long userId = getUserIdFromRequest(request);
+            List<TagVO> tags = tagService.getUserVisibleTags(userId);
+            return Result.success(tags);
+        } catch (Exception e) {
+            return Result.error(e.getMessage());
+        }
+    }
+    
+    /**
+     * 获取系统默认标签
+     */
+    @GetMapping("/default")
+    public Result<List<TagVO>> getDefaultTags() {
         try {
             List<TagVO> tags = tagService.getAllTags();
             return Result.success(tags);
@@ -55,13 +69,14 @@ public class TagController {
      * 创建标签
      */
     @PostMapping
-    public Result<TagVO> createTag(@RequestBody Map<String, String> data) {
+    public Result<TagVO> createTag(@RequestBody Map<String, String> data, HttpServletRequest request) {
         try {
             String tagName = data.get("name");
             if (tagName == null || tagName.isEmpty()) {
                 return Result.error("标签名称不能为空");
             }
-            TagVO tagVO = tagService.createTag(tagName);
+            Long userId = getUserIdFromRequest(request);
+            TagVO tagVO = tagService.createTag(tagName, userId);
             return Result.success("创建成功", tagVO);
         } catch (Exception e) {
             return Result.error(e.getMessage());
@@ -72,13 +87,14 @@ public class TagController {
      * 更新标签
      */
     @PutMapping("/{id}")
-    public Result<TagVO> updateTag(@PathVariable Long id, @RequestBody Map<String, String> data) {
+    public Result<TagVO> updateTag(@PathVariable Long id, @RequestBody Map<String, String> data, HttpServletRequest request) {
         try {
             String tagName = data.get("tagName");
             if (tagName == null || tagName.isEmpty()) {
                 return Result.error("标签名称不能为空");
             }
-            TagVO tagVO = tagService.updateTag(id, tagName);
+            Long userId = getUserIdFromRequest(request);
+            TagVO tagVO = tagService.updateTag(id, tagName, userId);
             return Result.success("更新成功", tagVO);
         } catch (Exception e) {
             return Result.error(e.getMessage());
@@ -89,9 +105,10 @@ public class TagController {
      * 删除标签
      */
     @DeleteMapping("/{id}")
-    public Result<Void> deleteTag(@PathVariable Long id) {
+    public Result<Void> deleteTag(@PathVariable Long id, HttpServletRequest request) {
         try {
-            tagService.deleteTag(id);
+            Long userId = getUserIdFromRequest(request);
+            tagService.deleteTag(id, userId);
             return Result.success("删除成功", null);
         } catch (Exception e) {
             return Result.error(e.getMessage());
@@ -118,9 +135,10 @@ public class TagController {
      * 搜索标签
      */
     @GetMapping("/search")
-    public Result<List<TagVO>> searchTags(@RequestParam(required = false) String keyword) {
+    public Result<List<TagVO>> searchTags(@RequestParam(required = false) String keyword, HttpServletRequest request) {
         try {
-            List<TagVO> tags = tagService.searchTags(keyword);
+            Long userId = getUserIdFromRequest(request);
+            List<TagVO> tags = tagService.searchTags(keyword, userId);
             return Result.success(tags);
         } catch (Exception e) {
             return Result.error(e.getMessage());

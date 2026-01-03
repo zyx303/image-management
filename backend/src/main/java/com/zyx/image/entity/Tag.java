@@ -16,6 +16,8 @@ public class Tag {
     @TableId(type = IdType.AUTO)
     private Long id;
     
+    private Long userId; // 用户ID，NULL表示系统默认标签
+    
     private String tagName;
     
     private Integer tagType; // 1-自动, 2-自定义, 3-AI

@@ -10,6 +10,7 @@ import java.time.LocalDateTime;
 @Data
 public class TagVO {
     private Long id;
+    private Long userId; // 用户ID，NULL表示系统默认标签
     private String tagName;
     private Integer tagType;
     private Integer useCount;

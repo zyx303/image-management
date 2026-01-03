@@ -58,13 +58,17 @@ CREATE TABLE IF NOT EXISTS `image` (
 -- 3. 标签表
 CREATE TABLE IF NOT EXISTS `tag` (
   `id` BIGINT PRIMARY KEY AUTO_INCREMENT COMMENT '标签ID',
-  `tag_name` VARCHAR(50) UNIQUE NOT NULL COMMENT '标签名称',
+  `user_id` BIGINT COMMENT '用户ID,NULL表示系统默认标签',
+  `tag_name` VARCHAR(50) NOT NULL COMMENT '标签名称',
   `tag_type` TINYINT COMMENT '标签类型:1-自动,2-自定义,3-AI',
   `use_count` INT DEFAULT 0 COMMENT '使用次数',
   `create_time` DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  UNIQUE KEY uk_user_tag (user_id, tag_name),
+  INDEX idx_user_id (user_id),
   INDEX idx_tag_name (tag_name),
   INDEX idx_tag_type (tag_type),
-  INDEX idx_use_count (use_count)
+  INDEX idx_use_count (use_count),
+  FOREIGN KEY (user_id) REFERENCES user(id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='标签表';
 
 -- 4. 图片标签关联表

@@ -7,18 +7,18 @@ INSERT INTO `user` (username, password, email, nickname, status) VALUES
 ('admin', '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy', 'admin@example.com', '管理员', 1),
 ('testuser', '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy', 'test@example.com', '测试用户', 1);
 
--- 插入常用标签
-INSERT INTO `tag` (tag_name, tag_type, use_count) VALUES
-('风景', 2, 0),
-('人物', 2, 0),
-('动物', 2, 0),
-('建筑', 2, 0),
-('美食', 2, 0),
-('旅行', 2, 0),
-('生活', 2, 0),
-('工作', 2, 0),
-('家庭', 2, 0),
-('朋友', 2, 0);
+-- 插入系统默认标签 (user_id为NULL表示系统默认标签，所有用户可见)
+INSERT INTO `tag` (user_id, tag_name, tag_type, use_count) VALUES
+(NULL, '风景', 2, 0),
+(NULL, '人物', 2, 0),
+(NULL, '动物', 2, 0),
+(NULL, '建筑', 2, 0),
+(NULL, '美食', 2, 0),
+(NULL, '旅行', 2, 0),
+(NULL, '生活', 2, 0),
+(NULL, '工作', 2, 0),
+(NULL, '家庭', 2, 0),
+(NULL, '朋友', 2, 0);
 
 -- 提示信息
 SELECT '数据库初始化完成！' AS message;

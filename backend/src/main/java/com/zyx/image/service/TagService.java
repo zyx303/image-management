@@ -34,16 +34,22 @@ public class TagService {
     private final ImageService imageService;
     
     /**
-     * 获取所有标签
+     * 获取所有标签（仅系统默认标签）
      */
     public List<TagVO> getAllTags() {
-        List<Tag> tags = tagMapper.selectList(null);
+        List<Tag> tags = tagMapper.selectDefaultTags();
         return tags.stream()
-                .map(tag -> {
-                    TagVO tagVO = new TagVO();
-                    BeanUtils.copyProperties(tag, tagVO);
-                    return tagVO;
-                })
+                .map(this::convertToTagVO)
+                .collect(Collectors.toList());
+    }
+    
+    /**
+     * 获取用户可见的所有标签（用户自己的标签 + 系统默认标签）
+     */
+    public List<TagVO> getUserVisibleTags(Long userId) {
+        List<Tag> tags = tagMapper.selectUserVisibleTags(userId);
+        return tags.stream()
+                .map(this::convertToTagVO)
                 .collect(Collectors.toList());
     }
     
@@ -86,69 +92,88 @@ public class TagService {
         List<Tag> tags = tagMapper.selectList(tagQueryWrapper);
         
         return tags.stream()
-                .map(tag -> {
-                    TagVO tagVO = new TagVO();
-                    BeanUtils.copyProperties(tag, tagVO);
-                    return tagVO;
-                })
+                .map(this::convertToTagVO)
                 .collect(Collectors.toList());
     }
     
     /**
-     * 创建标签
+     * 创建标签（关联到指定用户）
      */
     @Transactional
-    public TagVO createTag(String tagName) {
-        // 检查标签是否已存在
-        LambdaQueryWrapper<Tag> wrapper = new LambdaQueryWrapper<>();
-        wrapper.eq(Tag::getTagName, tagName);
-        Tag existingTag = tagMapper.selectOne(wrapper);
-        
+    public TagVO createTag(String tagName, Long userId) {
+        // 检查用户是否已有同名标签
+        Tag existingTag = tagMapper.selectByUserIdAndName(userId, tagName);
         if (existingTag != null) {
-            TagVO tagVO = new TagVO();
-            BeanUtils.copyProperties(existingTag, tagVO);
-            return tagVO;
+            return convertToTagVO(existingTag);
         }
         
-        // 创建新标签
+        // 检查系统默认标签中是否已存在同名标签
+        Tag defaultTag = tagMapper.selectByName(tagName);
+        if (defaultTag != null) {
+            // 系统默认标签已存在，直接返回
+            return convertToTagVO(defaultTag);
+        }
+        
+        // 创建新标签（关联到用户）
         Tag tag = new Tag();
+        tag.setUserId(userId);
         tag.setTagName(tagName);
         tag.setTagType(2); // 自定义标签
         tag.setUseCount(0);
         
         tagMapper.insert(tag);
         
-        TagVO tagVO = new TagVO();
-        BeanUtils.copyProperties(tag, tagVO);
-        return tagVO;
+        return convertToTagVO(tag);
+    }
+    
+    /**
+     * 创建标签（旧方法，保持兼容性，默认不关联用户）
+     */
+    @Transactional
+    public TagVO createTag(String tagName) {
+        return createTag(tagName, null);
     }
     
     /**
      * 更新标签
      */
     @Transactional
-    public TagVO updateTag(Long id, String tagName) {
+    public TagVO updateTag(Long id, String tagName, Long userId) {
         Tag tag = tagMapper.selectById(id);
         if (tag == null) {
             throw new RuntimeException("标签不存在");
         }
         
+        // 检查权限：只能修改自己的标签，不能修改系统默认标签
+        if (tag.getUserId() == null) {
+            throw new RuntimeException("系统默认标签不可修改");
+        }
+        if (!tag.getUserId().equals(userId)) {
+            throw new RuntimeException("无权修改此标签");
+        }
+        
         tag.setTagName(tagName);
         tagMapper.updateById(tag);
         
-        TagVO tagVO = new TagVO();
-        BeanUtils.copyProperties(tag, tagVO);
-        return tagVO;
+        return convertToTagVO(tag);
     }
     
     /**
      * 删除标签
      */
     @Transactional
-    public void deleteTag(Long id) {
+    public void deleteTag(Long id, Long userId) {
         Tag tag = tagMapper.selectById(id);
         if (tag == null) {
             throw new RuntimeException("标签不存在");
+        }
+        
+        // 检查权限：只能删除自己的标签，不能删除系统默认标签
+        if (tag.getUserId() == null) {
+            throw new RuntimeException("系统默认标签不可删除");
+        }
+        if (!tag.getUserId().equals(userId)) {
+            throw new RuntimeException("无权删除此标签");
         }
         
         // 删除图片标签关联
@@ -207,7 +232,24 @@ public class TagService {
     }
     
     /**
-     * 搜索标签
+     * 搜索标签（用户可见的标签）
+     */
+    public List<TagVO> searchTags(String keyword, Long userId) {
+        LambdaQueryWrapper<Tag> wrapper = new LambdaQueryWrapper<>();
+        // 只搜索用户自己的标签和系统默认标签
+        wrapper.and(w -> w.eq(Tag::getUserId, userId).or().isNull(Tag::getUserId));
+        if (keyword != null && !keyword.isEmpty()) {
+            wrapper.like(Tag::getTagName, keyword);
+        }
+        
+        List<Tag> tags = tagMapper.selectList(wrapper);
+        return tags.stream()
+                .map(this::convertToTagVO)
+                .collect(Collectors.toList());
+    }
+    
+    /**
+     * 搜索标签（旧方法，保持兼容性）
      */
     public List<TagVO> searchTags(String keyword) {
         LambdaQueryWrapper<Tag> wrapper = new LambdaQueryWrapper<>();
@@ -217,12 +259,17 @@ public class TagService {
         
         List<Tag> tags = tagMapper.selectList(wrapper);
         return tags.stream()
-                .map(tag -> {
-                    TagVO tagVO = new TagVO();
-                    BeanUtils.copyProperties(tag, tagVO);
-                    return tagVO;
-                })
+                .map(this::convertToTagVO)
                 .collect(Collectors.toList());
+    }
+
+    /**
+     * 将Tag实体转换为TagVO
+     */
+    private TagVO convertToTagVO(Tag tag) {
+        TagVO tagVO = new TagVO();
+        BeanUtils.copyProperties(tag, tagVO);
+        return tagVO;
     }
 
     /**
