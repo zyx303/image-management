@@ -51,10 +51,47 @@ public class TagService {
      * 获取用户标签（用户使用过的标签）
      */
     public List<TagVO> getUserTags(Long userId) {
-        // 查询用户图片的标签
-        LambdaQueryWrapper<ImageTag> wrapper = new LambdaQueryWrapper<>();
-        // 需要通过图片表关联查询，这里简化处理，返回所有标签
-        return getAllTags();
+        // 查询该用户的图片ID列表
+        LambdaQueryWrapper<Image> imageWrapper = new LambdaQueryWrapper<>();
+        imageWrapper.eq(Image::getUserId, userId)
+                   .eq(Image::getStatus, 1);
+        List<Image> userImages = imageMapper.selectList(imageWrapper);
+        
+        if (userImages.isEmpty()) {
+            return List.of();
+        }
+        
+        List<Long> imageIds = userImages.stream()
+                .map(Image::getId)
+                .collect(Collectors.toList());
+        
+        // 查询这些图片关联的标签ID
+        LambdaQueryWrapper<ImageTag> tagWrapper = new LambdaQueryWrapper<>();
+        tagWrapper.in(ImageTag::getImageId, imageIds);
+        List<ImageTag> imageTags = imageTagMapper.selectList(tagWrapper);
+        
+        // 获取去重后的标签ID
+        List<Long> tagIds = imageTags.stream()
+                .map(ImageTag::getTagId)
+                .distinct()
+                .collect(Collectors.toList());
+        
+        if (tagIds.isEmpty()) {
+            return List.of();
+        }
+        
+        // 查询标签详情
+        LambdaQueryWrapper<Tag> tagQueryWrapper = new LambdaQueryWrapper<>();
+        tagQueryWrapper.in(Tag::getId, tagIds);
+        List<Tag> tags = tagMapper.selectList(tagQueryWrapper);
+        
+        return tags.stream()
+                .map(tag -> {
+                    TagVO tagVO = new TagVO();
+                    BeanUtils.copyProperties(tag, tagVO);
+                    return tagVO;
+                })
+                .collect(Collectors.toList());
     }
     
     /**
