@@ -69,14 +69,18 @@ public class TagController {
      * 创建标签
      */
     @PostMapping
-    public Result<TagVO> createTag(@RequestBody Map<String, String> data, HttpServletRequest request) {
+    public Result<TagVO> createTag(@RequestBody Map<String, Object> data, HttpServletRequest request) {
         try {
-            String tagName = data.get("name");
+            String tagName = (String) data.get("name");
             if (tagName == null || tagName.isEmpty()) {
                 return Result.error("标签名称不能为空");
             }
+            Integer tagType = null;
+            if (data.get("tagType") != null) {
+                tagType = ((Number) data.get("tagType")).intValue();
+            }
             Long userId = getUserIdFromRequest(request);
-            TagVO tagVO = tagService.createTag(tagName, userId);
+            TagVO tagVO = tagService.createTag(tagName, userId, tagType);
             return Result.success("创建成功", tagVO);
         } catch (Exception e) {
             return Result.error(e.getMessage());

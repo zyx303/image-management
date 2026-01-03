@@ -268,10 +268,14 @@ public class AiTagController {
                 
                 addedTagNames.add(tagName);
                 
-                // 查找或创建标签
-                Tag tag = tagMapper.selectByName(tagName);
+                // 查找用户的标签（先查用户自己的，再查系统默认的）
+                Tag tag = tagMapper.selectByUserIdAndName(userId, tagName);
+                if (tag == null) {
+                    tag = tagMapper.selectByName(tagName);
+                }
                 if (tag == null) {
                     tag = new Tag();
+                    tag.setUserId(userId);
                     tag.setTagName(tagName);
                     tag.setTagType(3); // 3-AI标签
                     tag.setUseCount(0);

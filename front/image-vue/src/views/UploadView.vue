@@ -69,7 +69,7 @@
           <h4>添加标签</h4>
           <div class="tags-container">
             <el-tag
-              v-for="tag in tagStore.userTags"
+              v-for="tag in tagStore.tags"
               :key="tag.id"
               :type="selectedTags.includes(tag.id) ? 'primary' : 'info'"
               class="tag-item"
@@ -184,7 +184,7 @@ const tagForm = reactive({
 })
 
 onMounted(() => {
-  tagStore.fetchUserTags()
+  tagStore.fetchAllTags()
 })
 
 // 处理文件变化
@@ -278,6 +278,8 @@ const handleAddTag = async () => {
     showAddTagDialog.value = false
     tagForm.name = ''
     tagForm.color = '#409eff'
+    // 刷新标签列表
+    await tagStore.fetchAllTags()
   } catch (error) {
     ElMessage.error('创建标签失败',error)
   }

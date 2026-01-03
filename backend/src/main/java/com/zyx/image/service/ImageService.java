@@ -121,11 +121,15 @@ public class ImageService {
         } 
         if (cameraTagName != null && !cameraTagName.isEmpty()) {
             try {
-                // 查找或创建相机标签
-                Tag cameraTag = tagMapper.selectByName(cameraTagName);
+                // 查找用户的相机标签（先查用户自己的，再查系统默认的）
+                Tag cameraTag = tagMapper.selectByUserIdAndName(userId, cameraTagName);
                 if (cameraTag == null) {
-                    // 创建新标签
+                    cameraTag = tagMapper.selectByName(cameraTagName);
+                }
+                if (cameraTag == null) {
+                    // 创建新标签（关联到用户）
                     cameraTag = new Tag();
+                    cameraTag.setUserId(userId);
                     cameraTag.setTagName(cameraTagName);
                     cameraTag.setTagType(1); // 1-自动标签（从EXIF提取）
                     cameraTag.setUseCount(0);

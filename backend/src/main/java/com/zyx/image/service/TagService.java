@@ -97,10 +97,10 @@ public class TagService {
     }
     
     /**
-     * 创建标签（关联到指定用户）
+     * 创建标签（关联到指定用户，支持指定标签类型）
      */
     @Transactional
-    public TagVO createTag(String tagName, Long userId) {
+    public TagVO createTag(String tagName, Long userId, Integer tagType) {
         // 检查用户是否已有同名标签
         Tag existingTag = tagMapper.selectByUserIdAndName(userId, tagName);
         if (existingTag != null) {
@@ -118,7 +118,7 @@ public class TagService {
         Tag tag = new Tag();
         tag.setUserId(userId);
         tag.setTagName(tagName);
-        tag.setTagType(2); // 自定义标签
+        tag.setTagType(tagType != null ? tagType : 2); // 默认为自定义标签
         tag.setUseCount(0);
         
         tagMapper.insert(tag);
@@ -127,11 +127,19 @@ public class TagService {
     }
     
     /**
+     * 创建标签（关联到指定用户）
+     */
+    @Transactional
+    public TagVO createTag(String tagName, Long userId) {
+        return createTag(tagName, userId, 2);
+    }
+    
+    /**
      * 创建标签（旧方法，保持兼容性，默认不关联用户）
      */
     @Transactional
     public TagVO createTag(String tagName) {
-        return createTag(tagName, null);
+        return createTag(tagName, null, 2);
     }
     
     /**

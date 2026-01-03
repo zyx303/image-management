@@ -345,7 +345,7 @@ const adjustments = reactive({
 
 const availableTags = computed(() => {
   const imageTagIds = imageTags.value.map((t) => t.id)
-  return tagStore.userTags.filter((t) => !imageTagIds.includes(t.id))
+  return tagStore.tags.filter((t) => !imageTagIds.includes(t.id))
 })
 
 onMounted(async () => {
@@ -359,7 +359,7 @@ onMounted(async () => {
         // 假设 API 返回图片的标签信息
         imageTags.value = image.value.tags || []
       }
-      await tagStore.fetchUserTags()
+      await tagStore.fetchAllTags()
     } catch (error) {
       ElMessage.error('加载图片失败')
       router.push('/')
@@ -417,7 +417,7 @@ const handleAddTags = async () => {
   try {
     for (const tagId of selectedNewTags.value) {
       await addImageTag(image.value.id, tagId)
-      const tag = tagStore.userTags.find((t) => t.id === tagId)
+      const tag = tagStore.tags.find((t) => t.id === tagId)
       if (tag) {
         imageTags.value.push(tag)
       }
@@ -425,6 +425,8 @@ const handleAddTags = async () => {
     ElMessage.success('添加标签成功')
     showTagDialog.value = false
     selectedNewTags.value = []
+    // 刷新标签列表
+    await tagStore.fetchAllTags()
   } catch (error) {
     ElMessage.error('添加标签失败')
   }
@@ -435,6 +437,8 @@ const handleRemoveTag = async (tagId) => {
     await removeImageTag(image.value.id, tagId)
     imageTags.value = imageTags.value.filter((t) => t.id !== tagId)
     ElMessage.success('移除标签成功')
+    // 刷新标签列表以更新可选标签
+    await tagStore.fetchAllTags()
   } catch (error) {
     ElMessage.error('移除标签失败')
   }
@@ -493,16 +497,16 @@ const handleAddAiTags = async () => {
       
       addedTagNames.add(tagName)
       
-      // 查找该标签是否已存在于用户标签中
-      let tag = tagStore.userTags.find((t) => t.tagName === tagName)
+      // 查找该标签是否已存在于可见标签中（用户标签 + 系统默认标签）
+      let tag = tagStore.tags.find((t) => t.tagName === tagName)
       
       // 如果不存在，创建新标签
       if (!tag) {
         try {
           await tagStore.create({ name: tagName, tagType: 3 }) // tagType: 3 表示AI标签
           // 重新获取标签列表
-          await tagStore.fetchUserTags()
-          tag = tagStore.userTags.find((t) => t.tagName === tagName)
+          await tagStore.fetchAllTags()
+          tag = tagStore.tags.find((t) => t.tagName === tagName)
         } catch (createError) {
           console.error(`创建标签 ${tagName} 失败:`, createError)
           continue

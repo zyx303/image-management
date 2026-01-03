@@ -19,12 +19,12 @@
           </div>
           <div class="tags-list">
             <el-tag
-              v-for="tag in tagStore.userTags"
+              v-for="tag in tagStore.tags"
               :key="tag.id"
               class="tag-item"
               :type="selectedTags.includes(tag.id) ? 'primary' : 'info'"
               :effect="selectedTags.includes(tag.id) ? 'dark' : 'light'"
-              closable
+              :closable="tag.userId !== null"
               @click="handleTagSelect(tag.id)"
               @close="handleDeleteTag(tag)"
             >
@@ -266,12 +266,12 @@
         </div>
         <div class="tags-list">
           <el-tag
-            v-for="tag in tagStore.userTags"
+            v-for="tag in tagStore.tags"
             :key="tag.id"
             class="tag-item"
             :type="selectedTags.includes(tag.id) ? 'primary' : 'info'"
             :effect="selectedTags.includes(tag.id) ? 'dark' : 'light'"
-            closable
+            :closable="tag.userId !== null"
             @click="handleTagSelect(tag.id)"
             @close="handleDeleteTag(tag)"
           >
@@ -340,7 +340,7 @@ window.addEventListener('resize', () => {
 
 onMounted(() => {
   loadImages()
-  tagStore.fetchUserTags()
+  tagStore.fetchAllTags()
 })
 
 const loadImages = async () => {
@@ -479,12 +479,20 @@ const handleAddTag = async () => {
     ElMessage.success('标签创建成功')
     showAddTagDialog.value = false
     tagForm.name = ''
+    // 刷新标签列表
+    await tagStore.fetchAllTags()
   } catch (error) {
     ElMessage.error('创建标签失败')
   }
 }
 
 const handleDeleteTag = async (tag) => {
+  // 检查是否为系统默认标签
+  if (tag.userId === null) {
+    ElMessage.warning('系统默认标签不可删除')
+    return
+  }
+  
   try {
     await ElMessageBox.confirm(`确定要删除标签「${tag.tagName}」吗？`, '提示', {
       type: 'warning'
@@ -501,6 +509,8 @@ const handleDeleteTag = async (tag) => {
       }
     }
     ElMessage.success('标签删除成功')
+    // 刷新标签列表
+    await tagStore.fetchAllTags()
   } catch (error) {
     if (error !== 'cancel') {
       ElMessage.error('删除标签失败')
