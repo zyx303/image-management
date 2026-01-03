@@ -74,10 +74,6 @@
           </el-form>
         </div>
 
-        <div class="setting-row">
-          <el-form label-width="80px" size="small" class="setting-form">
-          </el-form>
-        </div>
 
         <div class="setting-row setting-row-center">
           <el-button
