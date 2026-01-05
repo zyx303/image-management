@@ -45,12 +45,13 @@ chmod +x deploy.sh
 ```
 
 ### 访问地址
-确保端口无占用，如占用，请修改docker-compose.yml文件中的端口。
 
-- **前端页面**: http://localhost
-- **后端 API**: http://localhost:8080/api
-- **MySQL**: localhost:3307
-- **Redis**: localhost:6379
+- **前端页面**: http://服务器IP:8083
+- **后端 API**: http://服务器IP:8085/api
+- **MySQL**: localhost:3308 (仅容器内访问，外部访问需使用此端口)
+- **Redis**: localhost:6380 (仅容器内访问，外部访问需使用此端口)
+
+如需修改端口，请编辑 `docker-compose.yml` 文件中的 `ports` 配置。
 
 ### 默认配置
 

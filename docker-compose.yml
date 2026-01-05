@@ -11,7 +11,7 @@ services:
       MYSQL_PASSWORD: imagepass123
       TZ: Asia/Shanghai
     ports:
-      - "3307:3306"
+      - "3308:3306"
     volumes:
       - mysql_data:/var/lib/mysql
       - ./database/init:/docker-entrypoint-initdb.d
@@ -34,7 +34,7 @@ services:
     container_name: image-management-redis
     restart: always
     ports:
-      - "6379:6379"
+      - "6380:6379"
     volumes:
       - redis_data:/data
     command: redis-server --appendonly yes --requirepass redis123456
@@ -54,7 +54,7 @@ services:
     container_name: image-management-backend
     restart: always
     ports:
-      - "8080:8080"
+      - "8085:8080"
     environment:
       - SPRING_PROFILES_ACTIVE=docker
       - SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/image?useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true
@@ -90,7 +90,7 @@ services:
     container_name: image-management-frontend
     restart: always
     ports:
-      - "80:80"
+      - "8083:80"
     networks:
       - image-network
     depends_on:
